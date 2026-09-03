@@ -14,7 +14,7 @@ export function ProjectCard({ project }: { project: Project }) {
   const spots = project.teamSize - project.teamFilled;
 
   return (
-    <Card asChild className="card-hover h-full shadow-soft">
+    <Card className="card-hover h-full shadow-soft">
       <article>
         <CardHeader className="gap-3">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
