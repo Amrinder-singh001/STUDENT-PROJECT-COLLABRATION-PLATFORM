@@ -113,7 +113,7 @@ function ProjectDetailsPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <SkillBadgeList skills={role.skills} size-hint="sm" />
+                      <SkillBadgeList skills={role.skills} />
                     </CardContent>
                   </Card>
                 </li>

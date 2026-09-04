@@ -38,7 +38,7 @@ const statuses = ["All statuses", "Recruiting", "In Progress", "Completed"] as c
 
 function ProjectsPage() {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState<string>(categories[0] ?? "All categories");
   const [status, setStatus] = useState<string>(statuses[0]);
   const [skills, setSkills] = useState<string[]>([]);
 
@@ -56,7 +56,7 @@ function ProjectsPage() {
           p.title.toLowerCase().includes(q) ||
           p.tagline.toLowerCase().includes(q) ||
           p.skills.some((s) => s.toLowerCase().includes(q));
-        const matchesCategory = category === categories[0] || p.category === category;
+        const matchesCategory = category === (categories[0] ?? "All categories") || p.category === category;
         const matchesStatus = status === statuses[0] || p.status === status;
         const matchesSkills =
           skills.length === 0 ||
@@ -66,7 +66,7 @@ function ProjectsPage() {
     [query, category, status, skills],
   );
 
-  const hasFilters = query || category !== categories[0] || status !== statuses[0] || skills.length;
+  const hasFilters = query || category !== (categories[0] ?? "All categories") || status !== statuses[0] || skills.length;
 
   return (
     <div>
@@ -94,7 +94,7 @@ function ProjectsPage() {
                   type="button"
                   onClick={() => {
                     setQuery("");
-                    setCategory(categories[0]);
+                    setCategory(categories[0] ?? "All categories");
                     setStatus(statuses[0]);
                     setSkills([]);
                   }}
@@ -206,7 +206,7 @@ function ProjectsPage() {
                 variant="outline"
                 onClick={() => {
                   setQuery("");
-                  setCategory(categories[0]);
+                  setCategory(categories[0] ?? "All categories");
                   setStatus(statuses[0]);
                   setSkills([]);
                 }}
