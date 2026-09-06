@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -15,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SkillBadge } from "@/components/SkillBadge";
-import { skillFilters } from "@/data/mock";
+import { useAuth } from "@/hooks/useAuth";
+import { registerSchema, semesters, type RegisterValues } from "@/lib/auth-schemas";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -37,13 +39,49 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-function RegisterPage() {
-  const [selected, setSelected] = useState<string[]>(["React", "TypeScript"]);
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="text-sm text-destructive">{message}</p>;
+}
 
-  const toggle = (skill: string) =>
-    setSelected((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
-    );
+function RegisterPage() {
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const router = useRouter();
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const form = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      college: "",
+      course: "",
+      semester: "",
+    },
+  });
+  const { errors, isSubmitting } = form.formState;
+
+  const onSubmit = async (values: RegisterValues) => {
+    setFormError(null);
+    try {
+      await signUp({
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+        college: values.college,
+        course: values.course,
+        semester: values.semester,
+      });
+      toast.success("Account created. Welcome to ProjectConnect!");
+      await router.invalidate();
+      navigate({ to: "/dashboard", replace: true });
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Could not create your account.");
+    }
+  };
 
   return (
     <div className="container-page py-12 lg:py-16">
@@ -60,35 +98,36 @@ function RegisterPage() {
             <h2 className="text-lg font-semibold">Account details</h2>
           </CardHeader>
           <CardContent>
-            <form
-              className="space-y-8"
-              onSubmit={(e) => {
-                e.preventDefault();
-                toast.success("Profile preview saved. Accounts go live in the next phase.");
-              }}
-            >
+            <form className="space-y-8" noValidate onSubmit={form.handleSubmit(onSubmit)}>
+              {formError ? (
+                <Alert variant="destructive">
+                  <AlertDescription>{formError}</AlertDescription>
+                </Alert>
+              ) : null}
+
               <fieldset className="space-y-5">
                 <legend className="sr-only">Personal information</legend>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First name</Label>
-                    <Input id="first-name" name="firstName" autoComplete="given-name" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" name="lastName" autoComplete="family-name" required />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="full-name">Full name</Label>
+                  <Input
+                    id="full-name"
+                    autoComplete="name"
+                    aria-invalid={Boolean(errors.fullName)}
+                    {...form.register("fullName")}
+                  />
+                  <FieldError message={errors.fullName?.message} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">College email</Label>
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     autoComplete="email"
                     placeholder="you@college.edu"
-                    required
+                    aria-invalid={Boolean(errors.email)}
+                    {...form.register("email")}
                   />
+                  <FieldError message={errors.email?.message} />
                   <p className="text-xs text-muted-foreground">
                     We use this to verify you're a student. It stays private.
                   </p>
@@ -98,21 +137,27 @@ function RegisterPage() {
                     <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
-                      name="password"
                       type="password"
                       autoComplete="new-password"
-                      required
+                      aria-invalid={Boolean(errors.password)}
+                      {...form.register("password")}
                     />
+                    <FieldError message={errors.password?.message} />
+                    <p className="text-xs text-muted-foreground">
+                      At least 8 characters, with an uppercase letter, a lowercase letter and a
+                      number.
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm password</Label>
                     <Input
                       id="confirm-password"
-                      name="confirmPassword"
                       type="password"
                       autoComplete="new-password"
-                      required
+                      aria-invalid={Boolean(errors.confirmPassword)}
+                      {...form.register("confirmPassword")}
                     />
+                    <FieldError message={errors.confirmPassword?.message} />
                   </div>
                 </div>
               </fieldset>
@@ -124,95 +169,72 @@ function RegisterPage() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="college">College / University</Label>
-                    <Input id="college" name="college" placeholder="e.g. NIT Trichy" />
+                    <Input
+                      id="college"
+                      placeholder="e.g. NIT Trichy"
+                      aria-invalid={Boolean(errors.college)}
+                      {...form.register("college")}
+                    />
+                    <FieldError message={errors.college?.message} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="branch">Branch</Label>
-                    <Input id="branch" name="branch" placeholder="e.g. Computer Science" />
+                    <Label htmlFor="course">Course</Label>
+                    <Input
+                      id="course"
+                      placeholder="e.g. B.Tech Computer Science"
+                      aria-invalid={Boolean(errors.course)}
+                      {...form.register("course")}
+                    />
+                    <FieldError message={errors.course?.message} />
                   </div>
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="year">Year of study</Label>
-                    <Select>
-                      <SelectTrigger id="year">
-                        <SelectValue placeholder="Select year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["1st Year", "2nd Year", "3rd Year", "4th Year", "Postgraduate"].map(
-                          (y) => (
-                            <SelectItem key={y} value={y}>
-                              {y}
+                <div className="space-y-2 sm:max-w-xs">
+                  <Label htmlFor="semester">Semester</Label>
+                  <Controller
+                    control={form.control}
+                    name="semester"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger id="semester">
+                          <SelectValue placeholder="Select semester" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {semesters.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
                             </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="availability">Weekly availability</Label>
-                    <Select>
-                      <SelectTrigger id="availability">
-                        <SelectValue placeholder="Select hours" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["1-3 hrs", "4-6 hrs", "7-10 hrs", "10+ hrs"].map((h) => (
-                          <SelectItem key={h} value={h}>
-                            {h}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </fieldset>
-
-              <fieldset className="space-y-4">
-                <legend className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Your skills
-                </legend>
-                <p className="text-sm text-muted-foreground">
-                  Pick the skills you want to be matched on.
-                </p>
-                <ul className="flex flex-wrap gap-2">
-                  {skillFilters.map((skill) => {
-                    const active = selected.includes(skill);
-                    return (
-                      <li key={skill}>
-                        <button
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => toggle(skill)}
-                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full"
-                        >
-                          <SkillBadge variant={active ? "primary" : "outline"}>
-                            {active && <Check className="h-3 w-3" aria-hidden="true" />}
-                            {skill}
-                          </SkillBadge>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Short bio</Label>
-                  <Textarea
-                    id="bio"
-                    name="bio"
-                    rows={4}
-                    placeholder="What do you like building? What are you looking for in a team?"
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
+                  <FieldError message={errors.semester?.message} />
                 </div>
               </fieldset>
 
-              <div className="flex items-start gap-2">
-                <Checkbox id="terms" className="mt-0.5" />
-                <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
-                  I agree to the community code of conduct and terms of use.
-                </Label>
+              <div className="space-y-1">
+                <div className="flex items-start gap-2">
+                  <Controller
+                    control={form.control}
+                    name="terms"
+                    render={({ field }) => (
+                      <Checkbox
+                        id="terms"
+                        className="mt-0.5"
+                        checked={field.value === true}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
+                      />
+                    )}
+                  />
+                  <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
+                    I agree to the community code of conduct and terms of use.
+                  </Label>
+                </div>
+                <FieldError message={errors.terms?.message} />
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                 Create account
               </Button>
 
