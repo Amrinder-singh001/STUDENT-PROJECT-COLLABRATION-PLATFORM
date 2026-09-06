@@ -11,7 +11,7 @@ import { SkillBadge, SkillBadgeList } from "@/components/SkillBadge";
 import { ProjectCard } from "@/components/ProjectCard";
 import { currentStudent, projects } from "@/data/mock";
 
-export const Route = createFileRoute("/profile")({
+export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: `${currentStudent.name} — Student profile on ProjectConnect` },
