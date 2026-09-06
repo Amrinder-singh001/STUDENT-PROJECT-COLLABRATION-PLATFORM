@@ -13,9 +13,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { loginSchema, type LoginValues } from "@/lib/auth-schemas";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search["redirect"] === "string" ? (search["redirect"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
+
   head: () => ({
     meta: [
       { title: "Log in — ProjectConnect" },
