@@ -1,13 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Rocket } from "lucide-react";
+import { Rocket, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/hooks/useAuth";
+import { loginSchema, type LoginValues } from "@/lib/auth-schemas";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search["redirect"] === "string" ? (search["redirect"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Log in — ProjectConnect" },
@@ -25,7 +33,35 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+function safePath(value: string | undefined): string {
+  if (!value) return "/dashboard";
+  return value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
+}
+
 function LoginPage() {
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const router = useRouter();
+  const search = Route.useSearch();
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (values: LoginValues) => {
+    setFormError(null);
+    try {
+      await signIn(values.email, values.password);
+      toast.success("Welcome back!");
+      await router.invalidate();
+      navigate({ to: safePath(search.redirect), replace: true });
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Could not log you in.");
+    }
+  };
+
   return (
     <div className="container-page grid min-h-[calc(100vh-4rem)] items-center py-12 lg:grid-cols-2 lg:gap-16">
       <section className="hidden lg:block">
@@ -56,62 +92,59 @@ function LoginPage() {
       <Card className="mx-auto w-full max-w-md shadow-lift">
         <CardHeader className="gap-2">
           <h2 className="text-2xl font-bold">Log in</h2>
-          <p className="text-sm text-muted-foreground">
-            Use your college email to continue.
-          </p>
+          <p className="text-sm text-muted-foreground">Use your college email to continue.</p>
         </CardHeader>
         <CardContent>
-          <form
-            className="space-y-5"
-            onSubmit={(e) => {
-              e.preventDefault();
-              toast.info("Authentication is coming in the next phase.");
-            }}
-          >
+          <form className="space-y-5" noValidate onSubmit={form.handleSubmit(onSubmit)}>
+            {formError ? (
+              <Alert variant="destructive">
+                <AlertDescription>{formError}</AlertDescription>
+              </Alert>
+            ) : null}
+
             <div className="space-y-2">
-              <Label htmlFor="login-email">College email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="login-email"
-                name="email"
+                id="email"
                 type="email"
                 autoComplete="email"
                 placeholder="you@college.edu"
-                required
+                aria-invalid={Boolean(form.formState.errors.email)}
+                {...form.register("email")}
               />
+              {form.formState.errors.email ? (
+                <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+              ) : null}
             </div>
+
             <div className="space-y-2">
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                <Label htmlFor="login-password">Password</Label>
-                <a href="#" className="text-xs font-medium text-primary hover:underline">
-                  Forgot password?
-                </a>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
-                id="login-password"
-                name="password"
+                id="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="••••••••"
-                required
+                aria-invalid={Boolean(form.formState.errors.password)}
+                {...form.register("password")}
               />
+              {form.formState.errors.password ? (
+                <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
+              ) : null}
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="remember" />
-              <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground">
-                Keep me signed in
-              </Label>
-            </div>
-            <Button type="submit" className="w-full" size="lg">
+
+            <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : null}
               Log in
             </Button>
-          </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            New to ProjectConnect?{" "}
-            <Link to="/register" className="font-medium text-primary hover:underline">
-              Create an account
-            </Link>
-          </p>
+            <p className="text-center text-sm text-muted-foreground">
+              New to ProjectConnect?{" "}
+              <Link to="/register" className="font-medium text-primary hover:underline">
+                Create an account
+              </Link>
+            </p>
+          </form>
         </CardContent>
       </Card>
     </div>
