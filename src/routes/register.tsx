@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { registerSchema, semesters, type RegisterValues } from "@/lib/auth-schemas";
+import { registerSchema, colleges, courses, semesters, type RegisterValues } from "@/lib/auth-schemas";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -169,21 +169,45 @@ function RegisterPage() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="college">College / University</Label>
-                    <Input
-                      id="college"
-                      placeholder="e.g. NIT Trichy"
-                      aria-invalid={Boolean(errors.college)}
-                      {...form.register("college")}
+                    <Controller
+                      control={form.control}
+                      name="college"
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger id="college">
+                            <SelectValue placeholder="Select college" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {colleges.map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     />
                     <FieldError message={errors.college?.message} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="course">Course</Label>
-                    <Input
-                      id="course"
-                      placeholder="e.g. B.Tech Computer Science"
-                      aria-invalid={Boolean(errors.course)}
-                      {...form.register("course")}
+                    <Controller
+                      control={form.control}
+                      name="course"
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger id="course">
+                            <SelectValue placeholder="Select course" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {courses.map((c) => (
+                              <SelectItem key={c} value={c}>
+                                {c}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     />
                     <FieldError message={errors.course?.message} />
                   </div>
