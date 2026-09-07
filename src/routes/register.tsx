@@ -39,7 +39,7 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ message }: { message?: string | undefined }) {
   if (!message) return null;
   return <p className="text-sm text-destructive">{message}</p>;
 }
