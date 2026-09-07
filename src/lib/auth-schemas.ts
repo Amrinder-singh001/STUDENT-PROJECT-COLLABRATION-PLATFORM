@@ -34,6 +34,52 @@ export const loginSchema = z.object({
 
 export type LoginValues = z.infer<typeof loginSchema>;
 
+export const colleges = [
+  "IIT Delhi",
+  "IIT Bombay",
+  "IIT Madras",
+  "IIT Kanpur",
+  "IIT Kharagpur",
+  "NIT Trichy",
+  "NIT Warangal",
+  "NIT Surathkal",
+  "BITS Pilani",
+  "IIIT Hyderabad",
+  "Delhi Technological University",
+  "VIT Vellore",
+  "SRM Institute of Science and Technology",
+  "Manipal Institute of Technology",
+  "Anna University",
+  "Jadavpur University",
+  "University of Mumbai",
+  "University of Delhi",
+  "Amity University",
+  "Lovely Professional University",
+  "Chandigarh University",
+  "Other",
+] as const;
+
+export const courses = [
+  "B.Tech Computer Science",
+  "B.Tech Information Technology",
+  "B.Tech Electronics & Communication",
+  "B.Tech Electrical Engineering",
+  "B.Tech Mechanical Engineering",
+  "B.Tech Civil Engineering",
+  "BCA (Bachelor of Computer Applications)",
+  "B.Sc Computer Science",
+  "B.Sc Data Science",
+  "BBA (Bachelor of Business Administration)",
+  "B.Com (Bachelor of Commerce)",
+  "BA (Bachelor of Arts)",
+  "B.Des (Bachelor of Design)",
+  "MCA (Master of Computer Applications)",
+  "M.Tech",
+  "M.Sc",
+  "MBA",
+  "Other",
+] as const;
+
 export const semesters = [
   "Semester 1",
   "Semester 2",
