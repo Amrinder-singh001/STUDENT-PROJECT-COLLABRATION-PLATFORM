@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { registerSchema, semesters, type RegisterValues } from "@/lib/auth-schemas";
+import { registerSchema, colleges, courses, semesters, type RegisterValues } from "@/lib/auth-schemas";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
