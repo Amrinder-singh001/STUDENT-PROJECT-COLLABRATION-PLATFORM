@@ -56,6 +56,7 @@ export const colleges = [
   "Amity University",
   "Lovely Professional University",
   "Chandigarh University",
+  "Rayat Bahra University Mohali",
   "Other",
 ] as const;
 
