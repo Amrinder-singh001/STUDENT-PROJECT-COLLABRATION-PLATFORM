@@ -19,6 +19,18 @@ export type Profile = {
   college: string | null;
   course: string | null;
   semester: string | null;
+  bio: string | null;
+  github_url: string | null;
+  portfolio_url: string | null;
+  avatar_url: string | null;
+};
+
+export type StudentSkill = {
+  id: string;
+  skill_id: string;
+  name: string;
+  category: string | null;
+  level: string;
 };
 
 type RegisterInput = {
@@ -34,6 +46,7 @@ type AuthContextValue = {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  skills: StudentSkill[];
   role: AppRole | null;
   loading: boolean;
   isAuthenticated: boolean;
@@ -71,21 +84,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [skills, setSkills] = useState<StudentSkill[]>([]);
   const [role, setRole] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadUserData = useCallback(async (userId: string) => {
-    const [{ data: profileRow }, { data: roleRows }] = await Promise.all([
+    const [{ data: profileRow }, { data: roleRows }, { data: skillRows }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, full_name, email, college, course, semester")
+        .select(
+          "id, full_name, email, college, course, semester, bio, github_url, portfolio_url, avatar_url",
+        )
         .eq("id", userId)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase
+        .from("student_skills")
+        .select("id, skill_id, level, skills(name, category)")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true }),
     ]);
     setProfile((profileRow as Profile | null) ?? null);
     const roles = (roleRows ?? []).map((r) => r.role as AppRole);
     setRole(roles.includes("admin") ? "admin" : (roles[0] ?? null));
+    setSkills(
+      ((skillRows ?? []) as unknown as Array<{
+        id: string;
+        skill_id: string;
+        level: string;
+        skills: { name: string; category: string | null } | null;
+      }>)
+        .filter((r) => r.skills)
+        .map((r) => ({
+          id: r.id,
+          skill_id: r.skill_id,
+          level: r.level,
+          name: r.skills!.name,
+          category: r.skills!.category,
+        })),
+    );
   }, []);
 
   useEffect(() => {
@@ -165,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setUser(null);
     setProfile(null);
+    setSkills([]);
     setRole(null);
   }, []);
 
@@ -177,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       session,
       profile,
+      skills,
       role,
       loading,
       isAuthenticated: Boolean(session),
@@ -186,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       refreshProfile,
     }),
-    [user, session, profile, role, loading, signIn, signUp, signOut, refreshProfile],
+    [user, session, profile, skills, role, loading, signIn, signUp, signOut, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
