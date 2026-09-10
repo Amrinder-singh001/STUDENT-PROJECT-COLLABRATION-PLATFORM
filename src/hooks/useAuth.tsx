@@ -46,6 +46,7 @@ type AuthContextValue = {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  skills: StudentSkill[];
   role: AppRole | null;
   loading: boolean;
   isAuthenticated: boolean;
