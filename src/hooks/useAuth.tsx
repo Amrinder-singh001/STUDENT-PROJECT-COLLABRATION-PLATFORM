@@ -215,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       session,
       profile,
+      skills,
       role,
       loading,
       isAuthenticated: Boolean(session),
@@ -224,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       refreshProfile,
     }),
-    [user, session, profile, role, loading, signIn, signUp, signOut, refreshProfile],
+    [user, session, profile, skills, role, loading, signIn, signUp, signOut, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
