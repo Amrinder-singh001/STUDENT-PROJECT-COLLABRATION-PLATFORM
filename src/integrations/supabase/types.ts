@@ -16,36 +16,101 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           college: string | null
           course: string | null
           created_at: string
           email: string
           full_name: string
+          github_url: string | null
           id: string
+          portfolio_url: string | null
           semester: string | null
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           college?: string | null
           course?: string | null
           created_at?: string
           email: string
           full_name: string
+          github_url?: string | null
           id: string
+          portfolio_url?: string | null
           semester?: string | null
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           college?: string | null
           course?: string | null
           created_at?: string
           email?: string
           full_name?: string
+          github_url?: string | null
           id?: string
+          portfolio_url?: string | null
           semester?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      skills: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      student_skills: {
+        Row: {
+          created_at: string
+          id: string
+          level: string
+          skill_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          level?: string
+          skill_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          level?: string
+          skill_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
