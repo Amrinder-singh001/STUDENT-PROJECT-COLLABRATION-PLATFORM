@@ -19,6 +19,18 @@ export type Profile = {
   college: string | null;
   course: string | null;
   semester: string | null;
+  bio: string | null;
+  github_url: string | null;
+  portfolio_url: string | null;
+  avatar_url: string | null;
+};
+
+export type StudentSkill = {
+  id: string;
+  skill_id: string;
+  name: string;
+  category: string | null;
+  level: string;
 };
 
 type RegisterInput = {
