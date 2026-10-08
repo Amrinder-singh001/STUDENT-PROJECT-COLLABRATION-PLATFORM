@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Modal } from "@/components/Modal";
+import { AvatarEditor } from "@/components/AvatarEditor";
 import { SkillBadge } from "@/components/SkillBadge";
 import { SkillManager } from "@/components/SkillManager";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +46,8 @@ export const Route = createFileRoute("/_authenticated/profile")({
         property: "og:description",
         content: "Bio, college details, links and skills for a student builder.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProfilePage,
@@ -56,6 +59,7 @@ function ProfilePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -116,8 +120,7 @@ function ProfilePage() {
     toast.success("Profile updated.");
   }
 
-  async function uploadAvatar(file: File) {
-    if (!user) return;
+  function selectAvatar(file: File) {
     if (!file.type.startsWith("image/")) {
       toast.error("Please choose an image file.");
       return;
@@ -126,7 +129,13 @@ function ProfilePage() {
       toast.error("Image must be under 5 MB.");
       return;
     }
+    setPendingPhoto(file);
+  }
+
+  async function uploadAvatar(file: File): Promise<boolean> {
+    if (!user) return false;
     setUploading(true);
+    try {
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `${user.id}/avatar-${Date.now()}.${ext}`;
     const { error: uploadError } = await supabase.storage
@@ -135,7 +144,7 @@ function ProfilePage() {
     if (uploadError) {
       setUploading(false);
       toast.error(uploadError.message);
-      return;
+      return false;
     }
     const { error } = await supabase
       .from("profiles")
@@ -144,10 +153,14 @@ function ProfilePage() {
     setUploading(false);
     if (error) {
       toast.error(error.message);
-      return;
+      return false;
     }
     await refreshProfile();
     toast.success("Profile photo updated.");
+    return true;
+    } finally {
+      setUploading(false);
+    }
   }
 
   if (loading && !profile) {
@@ -158,6 +171,9 @@ function ProfilePage() {
 
   return (
     <div>
+      {pendingPhoto ? (
+        <AvatarEditor file={pendingPhoto} onCancel={() => setPendingPhoto(null)} onSave={uploadAvatar} />
+      ) : null}
       <section className="surface-hero">
         <div className="container-page py-12">
           <div className="grid gap-6 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
@@ -173,15 +189,17 @@ function ProfilePage() {
                   {initialsFrom(profile?.full_name)}
                 </span>
               )}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
                 aria-label="Change profile photo"
                 className="absolute -bottom-2 -right-2 grid h-8 w-8 place-items-center rounded-full border border-ink-foreground/20 bg-ink-foreground/15 backdrop-blur transition-colors hover:bg-ink-foreground/25 disabled:opacity-50"
               >
                 <Camera className="h-4 w-4" aria-hidden="true" />
-              </button>
+              </Button>
               <input
                 ref={fileRef}
                 type="file"
@@ -189,7 +207,7 @@ function ProfilePage() {
                 className="sr-only"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) void uploadAvatar(file);
+                  if (file) selectAvatar(file);
                   e.target.value = "";
                 }}
               />
