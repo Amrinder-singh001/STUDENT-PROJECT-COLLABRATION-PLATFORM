@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Profile photo selection opens the client-side AvatarEditor using react-easy-crop and exports the confirmed square crop before the existing storage upload; this preserves the current profile design and prevents unconfirmed photo changes.
