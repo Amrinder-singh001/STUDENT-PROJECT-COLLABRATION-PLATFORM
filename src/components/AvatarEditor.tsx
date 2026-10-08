@@ -68,7 +68,7 @@ export function AvatarEditor({ file, onCancel, onSave }: AvatarEditorProps) {
             onZoomChange={setZoom}
             onCropComplete={(_, pixels) => setArea(pixels)}
             onMediaLoaded={() => setImageError(false)}
-            onImgError={() => { setImageError(true); setArea(null); }}
+            mediaProps={{ onError: () => { setImageError(true); setArea(null); } }}
             style={{ containerStyle: { background: "var(--muted)" } }}
           />
         ) : imageError ? (
