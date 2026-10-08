@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send, Github, Globe, GraduationCap } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { getAvatarUrl, initialsFrom } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +15,6 @@ import { Modal } from "@/components/Modal";
 import { ProjectCard } from "@/components/ProjectCard";
 import { SkillBadgeList } from "@/components/SkillBadge";
 import {
-  currentStudent,
   dashboardActivity,
   projects,
   suggestedTeammates,
@@ -37,14 +39,51 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-const stats = [
-  { icon: FolderKanban, label: "Active projects", value: "3", delta: "+1 this month" },
-  { icon: Send, label: "Applications sent", value: "11", delta: "4 pending" },
-  { icon: Users2, label: "Teammates", value: "17", delta: "across 5 teams" },
-  { icon: TrendingUp, label: "Profile strength", value: "82%", delta: "add 2 skills" },
-];
-
 function DashboardPage() {
+  const { profile, skills, user } = useAuth();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void getAvatarUrl(profile?.avatar_url ?? null).then((u) => {
+      if (active) setAvatarUrl(u);
+    });
+    return () => {
+      active = false;
+    };
+  }, [profile?.avatar_url]);
+
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "there";
+  const firstName = displayName.split(" ")[0];
+
+  const strength = useMemo(() => {
+    const checks = [
+      profile?.full_name,
+      profile?.bio,
+      profile?.college,
+      profile?.course,
+      profile?.semester,
+      profile?.github_url,
+      profile?.portfolio_url,
+      profile?.avatar_url,
+      skills.length >= 3 ? "ok" : null,
+    ];
+    const done = checks.filter(Boolean).length;
+    return { pct: Math.round((done / checks.length) * 100), missing: checks.length - done };
+  }, [profile, skills.length]);
+
+  const stats = [
+    { icon: FolderKanban, label: "Active projects", value: "3", delta: "+1 this month" },
+    { icon: Send, label: "Applications sent", value: "11", delta: "4 pending" },
+    { icon: Users2, label: "Skills listed", value: String(skills.length), delta: skills.length ? "shown on your profile" : "add your first skill" },
+    {
+      icon: TrendingUp,
+      label: "Profile strength",
+      value: `${strength.pct}%`,
+      delta: strength.missing ? `${strength.missing} item${strength.missing > 1 ? "s" : ""} to complete` : "profile complete",
+    },
+  ];
+
   const myProjects = projects.slice(0, 2);
   const applied = projects.slice(2, 5);
 
@@ -54,7 +93,7 @@ function DashboardPage() {
         <div className="min-w-0">
           <p className="text-sm text-muted-foreground">Welcome back</p>
           <h1 className="truncate text-2xl font-bold sm:text-3xl">
-            {currentStudent.name.split(" ")[0]}, here's your build log
+            {firstName}, here's your build log
           </h1>
         </div>
         <Modal
@@ -88,6 +127,73 @@ function DashboardPage() {
           </div>
         </Modal>
       </header>
+
+      <section aria-label="Your profile" className="mt-8">
+        <Card className="shadow-soft">
+          <CardContent className="grid gap-5 pt-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={`${displayName} avatar`}
+                className="h-16 w-16 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-secondary text-lg font-semibold"
+              >
+                {initialsFrom(displayName)}
+              </span>
+            )}
+            <div className="min-w-0 space-y-2">
+              <h2 className="truncate text-lg font-semibold">{displayName}</h2>
+              {(profile?.course || profile?.college || profile?.semester) && (
+                <p className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                  <GraduationCap className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0">
+                    {[profile?.course, profile?.semester, profile?.college].filter(Boolean).join(" · ")}
+                  </span>
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground">
+                {profile?.bio || "Add a short bio so teammates know what you're about."}
+              </p>
+              {skills.length > 0 ? (
+                <SkillBadgeList skills={skills.map((s) => s.name)} max={10} variant="primary" />
+              ) : (
+                <p className="text-sm text-muted-foreground">No skills yet — add some on your profile.</p>
+              )}
+              {(profile?.github_url || profile?.portfolio_url) && (
+                <div className="flex flex-wrap gap-4 pt-1 text-sm">
+                  {profile?.github_url && (
+                    <a
+                      href={profile.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 hover:text-primary"
+                    >
+                      <Github className="h-4 w-4" aria-hidden="true" /> GitHub
+                    </a>
+                  )}
+                  {profile?.portfolio_url && (
+                    <a
+                      href={profile.portfolio_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 hover:text-primary"
+                    >
+                      <Globe className="h-4 w-4" aria-hidden="true" /> Portfolio
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/profile">Edit profile</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
 
       <ul className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
