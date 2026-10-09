@@ -168,7 +168,7 @@ export function AvatarEditor({ file, onCancel, onSave }: AvatarEditorProps) {
             onCropComplete={(_, pixels) => setArea(pixels)}
             onMediaLoaded={() => setImageError(false)}
             mediaProps={{ onError: () => { setImageError(true); setArea(null); }, alt: "Your selected photo" }}
-            cropAreaProps={{ "aria-label": "Crop frame. Use arrow keys to move the photo, plus and minus to zoom." } as never}
+            cropperProps={{ "aria-label": "Crop frame. Use arrow keys to move the photo, plus and minus to zoom.", "aria-describedby": "avatar-crop-help" } as never}
             style={{ containerStyle: { background: "var(--muted)" } }}
           />
         ) : imageError ? (
