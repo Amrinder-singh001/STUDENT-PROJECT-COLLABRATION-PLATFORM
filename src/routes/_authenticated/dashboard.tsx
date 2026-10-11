@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send, Github, Globe, GraduationCap } from "lucide-react";
+import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send, Github, Globe, GraduationCap, Code2, Braces, Terminal, Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { getAvatarUrl, initialsFrom } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,15 @@ function DashboardPage() {
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "there";
   const firstName = displayName.split(" ")[0];
+
+  const profileLinks = [
+    { label: "GitHub", url: profile?.github_url, icon: Github },
+    { label: "Portfolio", url: profile?.portfolio_url, icon: Globe },
+    { label: "LeetCode", url: profile?.leetcode_url, icon: Code2 },
+    { label: "HackerRank", url: profile?.hackerrank_url, icon: Braces },
+    { label: "GeeksforGeeks", url: profile?.gfg_url, icon: Terminal },
+    { label: "CodeChef", url: profile?.codechef_url, icon: Trophy },
+  ].filter((l): l is { label: string; url: string; icon: typeof Github } => Boolean(l.url));
 
   const strength = useMemo(() => {
     const checks = [
@@ -166,28 +175,19 @@ function DashboardPage() {
               ) : (
                 <p className="text-sm text-muted-foreground">No skills yet — add some on your profile.</p>
               )}
-              {(profile?.github_url || profile?.portfolio_url) && (
+              {profileLinks.length > 0 && (
                 <div className="flex flex-wrap gap-4 pt-1 text-sm">
-                  {profile?.github_url && (
+                  {profileLinks.map((l) => (
                     <a
-                      href={profile.github_url}
+                      key={l.label}
+                      href={l.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 hover:text-primary"
                     >
-                      <Github className="h-4 w-4" aria-hidden="true" /> GitHub
+                      <l.icon className="h-4 w-4" aria-hidden="true" /> {l.label}
                     </a>
-                  )}
-                  {profile?.portfolio_url && (
-                    <a
-                      href={profile.portfolio_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 hover:text-primary"
-                    >
-                      <Globe className="h-4 w-4" aria-hidden="true" /> Portfolio
-                    </a>
-                  )}
+                  ))}
                 </div>
               )}
             </div>

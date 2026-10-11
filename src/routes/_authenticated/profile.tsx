@@ -7,6 +7,10 @@ import {
   Clock,
   Github,
   Globe,
+  Code2,
+  Braces,
+  Terminal,
+  Trophy,
   Pencil,
   Camera,
   Sparkles,
@@ -71,6 +75,10 @@ function ProfilePage() {
     semester: "",
     github_url: "",
     portfolio_url: "",
+    leetcode_url: "",
+    hackerrank_url: "",
+    gfg_url: "",
+    codechef_url: "",
   });
 
   useEffect(() => {
@@ -83,6 +91,10 @@ function ProfilePage() {
       semester: profile.semester ?? "",
       github_url: profile.github_url ?? "",
       portfolio_url: profile.portfolio_url ?? "",
+      leetcode_url: profile.leetcode_url ?? "",
+      hackerrank_url: profile.hackerrank_url ?? "",
+      gfg_url: profile.gfg_url ?? "",
+      codechef_url: profile.codechef_url ?? "",
     });
   }, [profile]);
 
@@ -109,6 +121,10 @@ function ProfilePage() {
         semester: form.semester || null,
         github_url: form.github_url.trim() || null,
         portfolio_url: form.portfolio_url.trim() || null,
+        leetcode_url: form.leetcode_url.trim() || null,
+        hackerrank_url: form.hackerrank_url.trim() || null,
+        gfg_url: form.gfg_url.trim() || null,
+        codechef_url: form.codechef_url.trim() || null,
       })
       .eq("id", user.id);
     setSaving(false);
@@ -169,6 +185,15 @@ function ProfilePage() {
   }
 
   const name = profile?.full_name || "Your profile";
+
+  const linkItems = [
+    { label: "GitHub", url: profile?.github_url, icon: Github },
+    { label: "Portfolio", url: profile?.portfolio_url, icon: Globe },
+    { label: "LeetCode", url: profile?.leetcode_url, icon: Code2 },
+    { label: "HackerRank", url: profile?.hackerrank_url, icon: Braces },
+    { label: "GeeksforGeeks", url: profile?.gfg_url, icon: Terminal },
+    { label: "CodeChef", url: profile?.codechef_url, icon: Trophy },
+  ].filter((l): l is { label: string; url: string; icon: typeof Github } => Boolean(l.url));
 
   return (
     <div>
@@ -346,6 +371,47 @@ function ProfilePage() {
                       onChange={(e) => setForm({ ...form, portfolio_url: e.target.value })}
                     />
                   </div>
+                  <p className="pt-1 text-sm font-semibold text-muted-foreground">Coding profiles</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-leetcode">LeetCode URL</Label>
+                    <Input
+                      id="edit-leetcode"
+                      type="url"
+                      placeholder="https://leetcode.com/username"
+                      value={form.leetcode_url}
+                      onChange={(e) => setForm({ ...form, leetcode_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-hackerrank">HackerRank URL</Label>
+                    <Input
+                      id="edit-hackerrank"
+                      type="url"
+                      placeholder="https://www.hackerrank.com/username"
+                      value={form.hackerrank_url}
+                      onChange={(e) => setForm({ ...form, hackerrank_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-gfg">GeeksforGeeks URL</Label>
+                    <Input
+                      id="edit-gfg"
+                      type="url"
+                      placeholder="https://www.geeksforgeeks.org/user/username"
+                      value={form.gfg_url}
+                      onChange={(e) => setForm({ ...form, gfg_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-codechef">CodeChef URL</Label>
+                    <Input
+                      id="edit-codechef"
+                      type="url"
+                      placeholder="https://www.codechef.com/users/username"
+                      value={form.codechef_url}
+                      onChange={(e) => setForm({ ...form, codechef_url: e.target.value })}
+                    />
+                  </div>
                 </div>
               </Modal>
             </div>
@@ -385,31 +451,23 @@ function ProfilePage() {
               <h2 className="text-base font-semibold">Links</h2>
             </CardHeader>
             <CardContent className="space-y-3">
-              {profile?.github_url ? (
-                <a
-                  href={profile.github_url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center gap-2 text-sm font-medium hover:text-primary"
-                >
-                  <Github className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{profile.github_url}</span>
-                </a>
+              {linkItems.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No links yet — add GitHub, portfolio and coding profiles via “Edit profile”.
+                </p>
               ) : (
-                <p className="text-sm text-muted-foreground">No GitHub link yet.</p>
-              )}
-              {profile?.portfolio_url ? (
-                <a
-                  href={profile.portfolio_url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center gap-2 text-sm font-medium hover:text-primary"
-                >
-                  <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{profile.portfolio_url}</span>
-                </a>
-              ) : (
-                <p className="text-sm text-muted-foreground">No portfolio link yet.</p>
+                linkItems.map((l) => (
+                  <a
+                    key={l.label}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="flex items-center gap-2 text-sm font-medium hover:text-primary"
+                  >
+                    <l.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{l.label}</span>
+                  </a>
+                ))
               )}
             </CardContent>
           </Card>

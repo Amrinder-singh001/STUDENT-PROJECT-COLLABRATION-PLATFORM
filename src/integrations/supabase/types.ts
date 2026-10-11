@@ -18,13 +18,17 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          codechef_url: string | null
           college: string | null
           course: string | null
           created_at: string
           email: string
           full_name: string
+          gfg_url: string | null
           github_url: string | null
+          hackerrank_url: string | null
           id: string
+          leetcode_url: string | null
           portfolio_url: string | null
           semester: string | null
           updated_at: string
@@ -32,13 +36,17 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          codechef_url?: string | null
           college?: string | null
           course?: string | null
           created_at?: string
           email: string
           full_name: string
+          gfg_url?: string | null
           github_url?: string | null
+          hackerrank_url?: string | null
           id: string
+          leetcode_url?: string | null
           portfolio_url?: string | null
           semester?: string | null
           updated_at?: string
@@ -46,13 +54,17 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          codechef_url?: string | null
           college?: string | null
           course?: string | null
           created_at?: string
           email?: string
           full_name?: string
+          gfg_url?: string | null
           github_url?: string | null
+          hackerrank_url?: string | null
           id?: string
+          leetcode_url?: string | null
           portfolio_url?: string | null
           semester?: string | null
           updated_at?: string
