@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Profile photo selection opens the client-side AvatarEditor using react-easy-crop and exports the confirmed square crop before the existing storage upload; this preserves the current profile design and prevents unconfirmed photo changes.
+- Dashboard and Profile use the shared ProfilePhotoViewer with the existing Modal primitive; this keeps photo viewing accessible and separate from the camera editing action.

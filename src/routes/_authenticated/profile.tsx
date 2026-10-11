@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Modal } from "@/components/Modal";
 import { AvatarEditor } from "@/components/AvatarEditor";
+import { ProfilePhotoViewer } from "@/components/ProfilePhotoViewer";
 import { SkillBadge } from "@/components/SkillBadge";
 import { SkillManager } from "@/components/SkillManager";
 import { useAuth } from "@/hooks/useAuth";
@@ -179,10 +180,10 @@ function ProfilePage() {
           <div className="grid gap-6 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
             <div className="relative h-20 w-20 shrink-0">
               {avatarSrc ? (
-                <img
+                <ProfilePhotoViewer
                   src={avatarSrc}
-                  alt={`${name}'s profile photo`}
-                  className="h-20 w-20 rounded-2xl object-cover"
+                  name={name}
+                  className="h-20 w-20 rounded-2xl"
                 />
               ) : (
                 <span className="grid h-20 w-20 place-items-center rounded-2xl bg-ink-foreground/10 font-display text-2xl font-bold">

@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Modal } from "@/components/Modal";
+import { ProfilePhotoViewer } from "@/components/ProfilePhotoViewer";
 import { ProjectCard } from "@/components/ProjectCard";
 import { SkillBadgeList } from "@/components/SkillBadge";
 import {
@@ -34,6 +35,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
         property: "og:description",
         content: "Your projects, applications and teammate matches in one place.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: DashboardPage,
@@ -132,10 +135,10 @@ function DashboardPage() {
         <Card className="shadow-soft">
           <CardContent className="grid gap-5 pt-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center">
             {avatarUrl ? (
-              <img
+              <ProfilePhotoViewer
                 src={avatarUrl}
-                alt={`${displayName} avatar`}
-                className="h-16 w-16 shrink-0 rounded-full object-cover"
+                name={displayName}
+                className="h-16 w-16 rounded-full"
               />
             ) : (
               <span
