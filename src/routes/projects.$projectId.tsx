@@ -30,6 +30,8 @@ export const Route = createFileRoute("/projects/$projectId")({
         { name: "description", content: project.tagline },
         { property: "og:title", content: title },
         { property: "og:description", content: project.tagline },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },

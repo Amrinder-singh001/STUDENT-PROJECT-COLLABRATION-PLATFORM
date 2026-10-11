@@ -18,6 +18,8 @@ export const Route = createFileRoute("/about")({
         content:
           "A skill-first collaboration platform helping student builders find teammates and finish real projects.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AboutPage,

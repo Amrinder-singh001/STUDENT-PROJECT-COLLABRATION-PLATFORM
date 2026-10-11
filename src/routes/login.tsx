@@ -28,6 +28,8 @@ export const Route = createFileRoute("/login")({
         property: "og:description",
         content: "Access your student project dashboard, teams and applications.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LoginPage,
