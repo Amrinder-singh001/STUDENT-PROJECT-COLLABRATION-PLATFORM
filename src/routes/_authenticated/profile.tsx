@@ -7,6 +7,10 @@ import {
   Clock,
   Github,
   Globe,
+  Code2,
+  Braces,
+  Terminal,
+  Trophy,
   Pencil,
   Camera,
   Sparkles,
@@ -71,6 +75,10 @@ function ProfilePage() {
     semester: "",
     github_url: "",
     portfolio_url: "",
+    leetcode_url: "",
+    hackerrank_url: "",
+    gfg_url: "",
+    codechef_url: "",
   });
 
   useEffect(() => {
@@ -83,6 +91,10 @@ function ProfilePage() {
       semester: profile.semester ?? "",
       github_url: profile.github_url ?? "",
       portfolio_url: profile.portfolio_url ?? "",
+      leetcode_url: profile.leetcode_url ?? "",
+      hackerrank_url: profile.hackerrank_url ?? "",
+      gfg_url: profile.gfg_url ?? "",
+      codechef_url: profile.codechef_url ?? "",
     });
   }, [profile]);
 
@@ -109,6 +121,10 @@ function ProfilePage() {
         semester: form.semester || null,
         github_url: form.github_url.trim() || null,
         portfolio_url: form.portfolio_url.trim() || null,
+        leetcode_url: form.leetcode_url.trim() || null,
+        hackerrank_url: form.hackerrank_url.trim() || null,
+        gfg_url: form.gfg_url.trim() || null,
+        codechef_url: form.codechef_url.trim() || null,
       })
       .eq("id", user.id);
     setSaving(false);
@@ -169,6 +185,15 @@ function ProfilePage() {
   }
 
   const name = profile?.full_name || "Your profile";
+
+  const linkItems = [
+    { label: "GitHub", url: profile?.github_url, icon: Github },
+    { label: "Portfolio", url: profile?.portfolio_url, icon: Globe },
+    { label: "LeetCode", url: profile?.leetcode_url, icon: Code2 },
+    { label: "HackerRank", url: profile?.hackerrank_url, icon: Braces },
+    { label: "GeeksforGeeks", url: profile?.gfg_url, icon: Terminal },
+    { label: "CodeChef", url: profile?.codechef_url, icon: Trophy },
+  ].filter((l): l is { label: string; url: string; icon: typeof Github } => Boolean(l.url));
 
   return (
     <div>
@@ -344,6 +369,47 @@ function ProfilePage() {
                       placeholder="https://yourportfolio.com"
                       value={form.portfolio_url}
                       onChange={(e) => setForm({ ...form, portfolio_url: e.target.value })}
+                    />
+                  </div>
+                  <p className="pt-1 text-sm font-semibold text-muted-foreground">Coding profiles</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-leetcode">LeetCode URL</Label>
+                    <Input
+                      id="edit-leetcode"
+                      type="url"
+                      placeholder="https://leetcode.com/username"
+                      value={form.leetcode_url}
+                      onChange={(e) => setForm({ ...form, leetcode_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-hackerrank">HackerRank URL</Label>
+                    <Input
+                      id="edit-hackerrank"
+                      type="url"
+                      placeholder="https://www.hackerrank.com/username"
+                      value={form.hackerrank_url}
+                      onChange={(e) => setForm({ ...form, hackerrank_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-gfg">GeeksforGeeks URL</Label>
+                    <Input
+                      id="edit-gfg"
+                      type="url"
+                      placeholder="https://www.geeksforgeeks.org/user/username"
+                      value={form.gfg_url}
+                      onChange={(e) => setForm({ ...form, gfg_url: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-codechef">CodeChef URL</Label>
+                    <Input
+                      id="edit-codechef"
+                      type="url"
+                      placeholder="https://www.codechef.com/users/username"
+                      value={form.codechef_url}
+                      onChange={(e) => setForm({ ...form, codechef_url: e.target.value })}
                     />
                   </div>
                 </div>
