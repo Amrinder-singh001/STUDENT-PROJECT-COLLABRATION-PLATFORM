@@ -34,6 +34,8 @@ export const Route = createFileRoute("/register")({
         property: "og:description",
         content: "List your skills and get matched with student project teams.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: RegisterPage,

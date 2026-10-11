@@ -31,6 +31,8 @@ export const Route = createFileRoute("/")({
         content:
           "Discover student projects, match on skills and form the team that ships your next big idea.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HomePage,

@@ -29,6 +29,8 @@ export const Route = createFileRoute("/projects/")({
         property: "og:description",
         content: "Filter hundreds of student projects by skill, category and open roles.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProjectsPage,
