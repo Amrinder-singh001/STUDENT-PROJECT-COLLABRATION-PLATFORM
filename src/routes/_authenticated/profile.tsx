@@ -451,31 +451,23 @@ function ProfilePage() {
               <h2 className="text-base font-semibold">Links</h2>
             </CardHeader>
             <CardContent className="space-y-3">
-              {profile?.github_url ? (
-                <a
-                  href={profile.github_url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center gap-2 text-sm font-medium hover:text-primary"
-                >
-                  <Github className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{profile.github_url}</span>
-                </a>
+              {linkItems.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No links yet — add GitHub, portfolio and coding profiles via “Edit profile”.
+                </p>
               ) : (
-                <p className="text-sm text-muted-foreground">No GitHub link yet.</p>
-              )}
-              {profile?.portfolio_url ? (
-                <a
-                  href={profile.portfolio_url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center gap-2 text-sm font-medium hover:text-primary"
-                >
-                  <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{profile.portfolio_url}</span>
-                </a>
-              ) : (
-                <p className="text-sm text-muted-foreground">No portfolio link yet.</p>
+                linkItems.map((l) => (
+                  <a
+                    key={l.label}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="flex items-center gap-2 text-sm font-medium hover:text-primary"
+                  >
+                    <l.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{l.label}</span>
+                  </a>
+                ))
               )}
             </CardContent>
           </Card>
