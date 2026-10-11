@@ -22,6 +22,10 @@ export type Profile = {
   bio: string | null;
   github_url: string | null;
   portfolio_url: string | null;
+  leetcode_url: string | null;
+  hackerrank_url: string | null;
+  gfg_url: string | null;
+  codechef_url: string | null;
   avatar_url: string | null;
 };
 
@@ -93,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase
         .from("profiles")
         .select(
-          "id, full_name, email, college, course, semester, bio, github_url, portfolio_url, avatar_url",
+          "id, full_name, email, college, course, semester, bio, github_url, portfolio_url, leetcode_url, hackerrank_url, gfg_url, codechef_url, avatar_url",
         )
         .eq("id", userId)
         .maybeSingle(),
