@@ -8,6 +8,13 @@
       "when": 1791739127482,
       "tag": "0000_add_coding_platform_links",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791908981801,
+      "tag": "0001_create_projects",
+      "breakpoints": true
     }
   ]
 }
