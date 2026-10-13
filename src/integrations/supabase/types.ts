@@ -71,6 +71,87 @@ export type Database = {
         }
         Relationships: []
       }
+      project_skills: {
+        Row: {
+          created_at: string
+          project_id: string
+          skill_id: string
+        }
+        Insert: {
+          created_at?: string
+          project_id: string
+          skill_id: string
+        }
+        Update: {
+          created_at?: string
+          project_id?: string
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_skills_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          additional_info: string | null
+          category: string
+          created_at: string
+          description: string
+          difficulty: string
+          duration: string
+          id: string
+          image_path: string | null
+          owner_id: string
+          status: string
+          team_size: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          additional_info?: string | null
+          category: string
+          created_at?: string
+          description: string
+          difficulty: string
+          duration: string
+          id?: string
+          image_path?: string | null
+          owner_id: string
+          status?: string
+          team_size: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          additional_info?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          image_path?: string | null
+          owner_id?: string
+          status?: string
+          team_size?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           category: string | null
