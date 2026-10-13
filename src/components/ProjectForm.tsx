@@ -18,7 +18,7 @@ import {
   type ProjectRow,
 } from "@/lib/projects";
 
-type Errors = Partial<Record<keyof ProjectInput | "image", string>>;
+type Errors = Partial<Record<keyof ProjectInput | "image", string | undefined>>;
 
 export function ProjectForm({
   initial,
@@ -58,6 +58,7 @@ export function ProjectForm({
       return () => URL.revokeObjectURL(url);
     }
     void getAvatarUrl(initial?.image_path ?? null).then(setPreview);
+    return undefined;
   }, [image, initial?.image_path]);
 
   const set = <K extends keyof typeof values>(k: K, v: (typeof values)[K]) => {
