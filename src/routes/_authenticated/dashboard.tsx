@@ -6,14 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { getAvatarUrl, initialsFrom } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Modal } from "@/components/Modal";
 import { ProfilePhotoViewer } from "@/components/ProfilePhotoViewer";
-import { ProjectCard } from "@/components/ProjectCard";
+import { MyProjectCard } from "@/components/MyProjectCard";
+import { deleteProject, listMyProjects, type ProjectRow } from "@/lib/projects";
 import { SkillBadgeList } from "@/components/SkillBadge";
 import {
   dashboardActivity,
@@ -45,6 +41,17 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardPage() {
   const { profile, skills, user } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [myProjects, setMyProjects] = useState<ProjectRow[] | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    listMyProjects(user.id)
+      .then(setMyProjects)
+      .catch(() => {
+        setMyProjects([]);
+        toast.error("Could not load your projects.");
+      });
+  }, [user]);
 
   useEffect(() => {
     let active = true;
@@ -85,7 +92,7 @@ function DashboardPage() {
   }, [profile, skills.length]);
 
   const stats = [
-    { icon: FolderKanban, label: "Active projects", value: "3", delta: "+1 this month" },
+    { icon: FolderKanban, label: "My projects", value: String(myProjects?.length ?? 0), delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
     { icon: Send, label: "Applications sent", value: "11", delta: "4 pending" },
     { icon: Users2, label: "Skills listed", value: String(skills.length), delta: skills.length ? "shown on your profile" : "add your first skill" },
     {
@@ -96,7 +103,6 @@ function DashboardPage() {
     },
   ];
 
-  const myProjects = projects.slice(0, 2);
   const applied = projects.slice(2, 5);
 
   return (
@@ -108,36 +114,12 @@ function DashboardPage() {
             {firstName}, here's your build log
           </h1>
         </div>
-        <Modal
-          title="Create a new project"
-          description="Post an idea and start collecting teammates. Saving goes live in a later phase."
-          trigger={
-            <Button className="shrink-0">
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              New project
-            </Button>
-          }
-          footer={
-            <Button onClick={() => toast.success("Project draft captured (UI preview).")}>
-              Publish project
-            </Button>
-          }
-        >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-title">Project title</Label>
-              <Input id="new-title" placeholder="e.g. CampusPool" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-tagline">One-line pitch</Label>
-              <Input id="new-tagline" placeholder="What does it do, in one line?" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-description">Description</Label>
-              <Textarea id="new-description" rows={4} placeholder="Scope, stack and the roles you need." />
-            </div>
-          </div>
-        </Modal>
+        <Button asChild className="shrink-0">
+          <Link to="/projects/new">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New project
+          </Link>
+        </Button>
       </header>
 
       <section aria-label="Your profile" className="mt-8">
@@ -226,38 +208,36 @@ function DashboardPage() {
             </TabsList>
 
             <TabsContent value="my-projects" className="mt-6 space-y-6">
-              <div className="grid gap-6 sm:grid-cols-2">
-                {myProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </div>
-              <Card className="shadow-soft">
-                <CardHeader>
-                  <h2 className="text-base font-semibold">Milestone progress</h2>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {myProjects.map((project) => {
-                    const pct = Math.round(
-                      (project.milestones.filter((m) => m.done).length /
-                        project.milestones.length) *
-                        100,
-                    );
-                    return (
-                      <div key={project.id}>
-                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                          <span className="truncate text-sm font-medium">{project.title}</span>
-                          <span className="shrink-0 text-xs text-muted-foreground">{pct}%</span>
-                        </div>
-                        <Progress
-                          value={pct}
-                          className="mt-2"
-                          aria-label={`${project.title} progress`}
-                        />
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
+              {myProjects === null ? (
+                <p className="text-sm text-muted-foreground">Loading your projects…</p>
+              ) : myProjects.length === 0 ? (
+                <Card className="shadow-soft">
+                  <CardContent className="flex flex-col items-start gap-3 pt-6">
+                    <p className="text-sm text-muted-foreground">You haven't created any projects yet.</p>
+                    <Button asChild>
+                      <Link to="/projects/new"><Plus className="h-4 w-4" aria-hidden="true" /> Create your first project</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {myProjects.map((project) => (
+                    <MyProjectCard
+                      key={project.id}
+                      project={project}
+                      onDelete={async () => {
+                        try {
+                          await deleteProject(project);
+                          setMyProjects((p) => (p ?? []).filter((x) => x.id !== project.id));
+                          toast.success("Project deleted");
+                        } catch {
+                          toast.error("Could not delete the project.");
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="applications" className="mt-6">
