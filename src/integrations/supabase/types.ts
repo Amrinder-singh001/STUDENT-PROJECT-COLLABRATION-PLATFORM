@@ -71,6 +71,32 @@ export type Database = {
         }
         Relationships: []
       }
+      project_bookmarks: {
+        Row: {
+          created_at: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_bookmarks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_skills: {
         Row: {
           created_at: string
@@ -231,6 +257,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_project_owners: {
+        Args: { _ids: string[] }
+        Returns: {
+          college: string
+          course: string
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
