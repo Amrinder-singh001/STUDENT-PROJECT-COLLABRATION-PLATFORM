@@ -29,7 +29,7 @@ export function ApplyPanel({ projectId, full }: { projectId: string; full: boole
   if (!user)
     return (
       <Button asChild className="w-full">
-        <Link to="/login" search={{ redirect: `/projects/${projectId}` } as never}>Log in to apply</Link>
+        <Link to="/login" search={{ redirect: `/projects/${projectId}` }}>Log in to apply</Link>
       </Button>
     );
   if (isLoading) return <Button className="w-full" disabled>Loading…</Button>;
