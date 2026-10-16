@@ -10,6 +10,7 @@ import { statusStyles } from "@/components/DiscoveryCard";
 import { discoveryProjectQuery } from "@/lib/discovery";
 import { PROJECT_STATUSES } from "@/lib/projects";
 import { initialsFrom } from "@/lib/avatar";
+import { ApplyPanel } from "@/components/ApplyPanel";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/projects/$projectId")({
@@ -141,15 +142,25 @@ function ProjectDetailsPage() {
             <CardHeader className="gap-1">
               <h2 className="text-base font-semibold">Team</h2>
               <p className="text-sm text-muted-foreground">
-                {spots > 0 ? `${spots} open spot${spots > 1 ? "s" : ""} · applications open soon` : "This team is currently full."}
+                {spots > 0 ? `${spots} open spot${spots > 1 ? "s" : ""} · applications open` : "This team is currently full."}
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
               {isOwner ? (
-                <Button asChild className="w-full">
-                  <Link to="/projects/$projectId/edit" params={{ projectId: project.id }}>Edit project</Link>
-                </Button>
-              ) : null}
+                <>
+                  <Button asChild className="w-full">
+                    <Link to="/projects/$projectId/applications" params={{ projectId: project.id }}>Manage applications</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/projects/$projectId/edit" params={{ projectId: project.id }}>Edit project</Link>
+                  </Button>
+                </>
+              ) : (
+                <ApplyPanel projectId={project.id} full={spots <= 0} />
+              )}
+              <Button asChild variant="ghost" className="w-full">
+                <Link to="/projects/$projectId/team" params={{ projectId: project.id }}>View team</Link>
+              </Button>
               <BookmarkButton projectId={project.id} withLabel className="w-full" />
             </CardContent>
           </Card>

@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send, Github, Globe, GraduationCap, Code2, Braces, Terminal, Trophy } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { appStatusStyles, formatDate, listMyApplications } from "@/lib/applications";
 import { useAuth } from "@/hooks/useAuth";
 import { getAvatarUrl, initialsFrom } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
@@ -93,7 +95,7 @@ function DashboardPage() {
 
   const stats = [
     { icon: FolderKanban, label: "My projects", value: String(myProjects?.length ?? 0), delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
-    { icon: Send, label: "Applications sent", value: "11", delta: "4 pending" },
+    { icon: Send, label: "Applications sent", value: String(myApps.length), delta: `${myApps.filter((a) => a.status === "Pending").length} pending` },
     { icon: Users2, label: "Skills listed", value: String(skills.length), delta: skills.length ? "shown on your profile" : "add your first skill" },
     {
       icon: TrendingUp,
@@ -103,7 +105,11 @@ function DashboardPage() {
     },
   ];
 
-  const applied = projects.slice(2, 5);
+  const { data: myApps = [] } = useQuery({
+    queryKey: ["my-applications", user?.id],
+    queryFn: () => listMyApplications(user!.id),
+    enabled: !!user,
+  });
 
   return (
     <div className="container-page py-10">
@@ -247,25 +253,29 @@ function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="divide-y divide-border">
-                    {applied.map((project, i) => (
+                    {myApps.length === 0 && (
+                      <li className="py-2 text-sm text-muted-foreground">
+                        You haven't applied to any projects yet.{" "}
+                        <Link to="/projects" className="font-medium text-primary hover:underline">Explore projects</Link>
+                      </li>
+                    )}
+                    {myApps.map((app) => (
                       <li
-                        key={project.id}
+                        key={app.id}
                         className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-4 first:pt-0 last:pb-0"
                       >
                         <div className="min-w-0">
                           <Link
                             to="/projects/$projectId"
-                            params={{ projectId: project.id }}
+                            params={{ projectId: app.project?.id ?? "" }}
                             className="truncate font-medium hover:text-primary"
                           >
-                            {project.title}
+                            {app.project?.title ?? "Removed project"}
                           </Link>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {project.category} · applied {project.createdAt}
-                          </p>
+                          <p className="truncate text-xs text-muted-foreground">Applied {formatDate(app.created_at)}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium">
-                          {["Pending", "Shortlisted", "Accepted"][i % 3]}
+                        <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${appStatusStyles[app.status] ?? ""}`}>
+                          {app.status}
                         </span>
                       </li>
                     ))}
