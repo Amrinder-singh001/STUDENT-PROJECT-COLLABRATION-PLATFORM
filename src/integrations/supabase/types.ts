@@ -71,6 +71,50 @@ export type Database = {
         }
         Relationships: []
       }
+      project_applications: {
+        Row: {
+          applicant_id: string
+          contribution: string
+          created_at: string
+          id: string
+          motivation: string
+          project_id: string
+          relevant_skills: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          contribution: string
+          created_at?: string
+          id?: string
+          motivation: string
+          project_id: string
+          relevant_skills: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          contribution?: string
+          created_at?: string
+          id?: string
+          motivation?: string
+          project_id?: string
+          relevant_skills?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_bookmarks: {
         Row: {
           created_at: string
@@ -90,6 +134,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_bookmarks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          joined_at: string
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          project_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          project_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -257,6 +330,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decide_application: {
+        Args: { _accept: boolean; _application_id: string; _role?: string }
+        Returns: undefined
+      }
+      get_project_applicants: {
+        Args: { _project_id: string }
+        Returns: {
+          applicant_id: string
+          bio: string
+          college: string
+          contribution: string
+          course: string
+          created_at: string
+          full_name: string
+          github_url: string
+          id: string
+          motivation: string
+          portfolio_url: string
+          relevant_skills: string
+          semester: string
+          skills: string[]
+          status: string
+        }[]
+      }
       get_project_owners: {
         Args: { _ids: string[] }
         Returns: {
@@ -266,11 +363,28 @@ export type Database = {
           id: string
         }[]
       }
+      get_project_team: {
+        Args: { _project_id: string }
+        Returns: {
+          college: string
+          course: string
+          full_name: string
+          is_owner: boolean
+          joined_at: string
+          role: string
+          skills: string[]
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_project_owner: {
+        Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
     }
