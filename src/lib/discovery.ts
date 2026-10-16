@@ -30,6 +30,7 @@ const PROGRESS: Record<string, number> = {
 
 type Raw = Omit<DiscoveryProject, "skills" | "owner" | "members" | "progress"> & {
   project_skills: { skills: { name: string } | null }[] | null;
+  project_members: { count: number }[] | null;
 };
 
 async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
@@ -39,18 +40,18 @@ async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
     const { data } = await supabase.rpc("get_project_owners", { _ids: ids });
     owners = (data ?? []) as DiscoveryOwner[];
   }
-  return rows.map(({ project_skills, ...r }) => ({
+  return rows.map(({ project_skills, project_members, ...r }) => ({
     ...r,
     skills: (project_skills ?? []).map((ps) => ps.skills?.name).filter((n): n is string => !!n),
     owner: owners.find((o) => o.id === r.owner_id) ?? null,
-    // Team formation is not live yet: the owner is the only member.
-    members: 1,
+    // The owner always counts as a member.
+    members: 1 + (project_members?.[0]?.count ?? 0),
     progress: PROGRESS[r.status] ?? 0,
   }));
 }
 
 const SELECT =
-  "id, owner_id, title, description, category, team_size, difficulty, duration, status, additional_info, created_at, project_skills(skills(name))";
+  "id, owner_id, title, description, category, team_size, difficulty, duration, status, additional_info, created_at, project_skills(skills(name)), project_members(count)";
 
 export const discoveryQuery = queryOptions({
   queryKey: ["discovery-projects"],
