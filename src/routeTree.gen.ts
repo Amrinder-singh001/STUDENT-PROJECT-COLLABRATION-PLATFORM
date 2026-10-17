@@ -19,7 +19,9 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as AuthenticatedProjectsNewRouteImport } from './routes/_authenticated/projects.new'
+import { Route as AuthenticatedProjectsProjectIdApplicationsRouteImport } from './routes/_authenticated/projects.$projectId.applications'
 import { Route as AuthenticatedProjectsProjectIdEditRouteImport } from './routes/_authenticated/projects.$projectId.edit'
+import { Route as AuthenticatedProjectsProjectIdTeamRouteImport } from './routes/_authenticated/projects.$projectId.team'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,10 +73,22 @@ const AuthenticatedProjectsNewRoute =
     path: '/projects/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProjectsProjectIdApplicationsRoute =
+  AuthenticatedProjectsProjectIdApplicationsRouteImport.update({
+    id: '/projects/$projectId/applications',
+    path: '/projects/$projectId/applications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProjectsProjectIdEditRoute =
   AuthenticatedProjectsProjectIdEditRouteImport.update({
     id: '/projects/$projectId/edit',
     path: '/projects/$projectId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProjectsProjectIdTeamRoute =
+  AuthenticatedProjectsProjectIdTeamRouteImport.update({
+    id: '/projects/$projectId/team',
+    path: '/projects/$projectId/team',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -88,7 +102,9 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/': typeof ProjectsIndexRoute
   '/projects/new': typeof AuthenticatedProjectsNewRoute
+  '/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -100,7 +116,9 @@ export interface FileRoutesByTo {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/new': typeof AuthenticatedProjectsNewRoute
+  '/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,7 +132,9 @@ export interface FileRoutesById {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/projects/': typeof ProjectsIndexRoute
   '/_authenticated/projects/new': typeof AuthenticatedProjectsNewRoute
+  '/_authenticated/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/_authenticated/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/_authenticated/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -128,7 +148,9 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/'
     | '/projects/new'
+    | '/projects/$projectId/applications'
     | '/projects/$projectId/edit'
+    | '/projects/$projectId/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,7 +162,9 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects'
     | '/projects/new'
+    | '/projects/$projectId/applications'
     | '/projects/$projectId/edit'
+    | '/projects/$projectId/team'
   id:
     | '__root__'
     | '/'
@@ -153,7 +177,9 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/projects/'
     | '/_authenticated/projects/new'
+    | '/_authenticated/projects/$projectId/applications'
     | '/_authenticated/projects/$projectId/edit'
+    | '/_authenticated/projects/$projectId/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,11 +264,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/projects/$projectId/applications': {
+      id: '/_authenticated/projects/$projectId/applications'
+      path: '/projects/$projectId/applications'
+      fullPath: '/projects/$projectId/applications'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdApplicationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/projects/$projectId/edit': {
       id: '/_authenticated/projects/$projectId/edit'
       path: '/projects/$projectId/edit'
       fullPath: '/projects/$projectId/edit'
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects/$projectId/team': {
+      id: '/_authenticated/projects/$projectId/team'
+      path: '/projects/$projectId/team'
+      fullPath: '/projects/$projectId/team'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -252,15 +292,21 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProjectsNewRoute: typeof AuthenticatedProjectsNewRoute
+  AuthenticatedProjectsProjectIdApplicationsRoute: typeof AuthenticatedProjectsProjectIdApplicationsRoute
   AuthenticatedProjectsProjectIdEditRoute: typeof AuthenticatedProjectsProjectIdEditRoute
+  AuthenticatedProjectsProjectIdTeamRoute: typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProjectsNewRoute: AuthenticatedProjectsNewRoute,
+  AuthenticatedProjectsProjectIdApplicationsRoute:
+    AuthenticatedProjectsProjectIdApplicationsRoute,
   AuthenticatedProjectsProjectIdEditRoute:
     AuthenticatedProjectsProjectIdEditRoute,
+  AuthenticatedProjectsProjectIdTeamRoute:
+    AuthenticatedProjectsProjectIdTeamRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
