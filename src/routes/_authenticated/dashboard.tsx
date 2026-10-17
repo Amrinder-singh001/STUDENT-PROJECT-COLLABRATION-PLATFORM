@@ -93,6 +93,12 @@ function DashboardPage() {
     return { pct: Math.round((done / checks.length) * 100), missing: checks.length - done };
   }, [profile, skills.length]);
 
+  const { data: myApps = [] } = useQuery({
+    queryKey: ["my-applications", user?.id],
+    queryFn: () => listMyApplications(user!.id),
+    enabled: !!user,
+  });
+
   const stats = [
     { icon: FolderKanban, label: "My projects", value: String(myProjects?.length ?? 0), delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
     { icon: Send, label: "Applications sent", value: String(myApps.length), delta: `${myApps.filter((a) => a.status === "Pending").length} pending` },
@@ -105,11 +111,6 @@ function DashboardPage() {
     },
   ];
 
-  const { data: myApps = [] } = useQuery({
-    queryKey: ["my-applications", user?.id],
-    queryFn: () => listMyApplications(user!.id),
-    enabled: !!user,
-  });
 
   return (
     <div className="container-page py-10">
