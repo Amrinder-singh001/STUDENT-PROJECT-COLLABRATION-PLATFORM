@@ -29,6 +29,13 @@
       "when": 1792158222761,
       "tag": "0003_applications_and_teams",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793589090373,
+      "tag": "0004_project_tasks_and_progress",
+      "breakpoints": true
     }
   ]
 }

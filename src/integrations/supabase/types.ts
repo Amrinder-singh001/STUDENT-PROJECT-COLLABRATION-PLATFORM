@@ -203,6 +203,53 @@ export type Database = {
           },
         ]
       }
+      project_tasks: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          id: string
+          priority: string
+          project_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          priority?: string
+          project_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          priority?: string
+          project_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           additional_info: string | null
@@ -363,6 +410,15 @@ export type Database = {
           id: string
         }[]
       }
+      get_project_task_stats: {
+        Args: { _ids: string[] }
+        Returns: {
+          _active: number
+          _completed: number
+          _project_id: string
+          _total: number
+        }[]
+      }
       get_project_team: {
         Args: { _project_id: string }
         Returns: {
@@ -383,9 +439,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_project_owner: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
+      }
+      sync_project_workflow: {
+        Args: { _project_id: string }
+        Returns: undefined
       }
     }
     Enums: {
