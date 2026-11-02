@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Search,
@@ -12,9 +13,9 @@ import {
 import heroImage from "@/assets/hero-students.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ProjectCard } from "@/components/ProjectCard";
+import { DiscoveryCard } from "@/components/DiscoveryCard";
 import { SkillBadge } from "@/components/SkillBadge";
-import { projects } from "@/data/mock";
+import { discoveryQuery } from "@/lib/discovery";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -80,7 +81,8 @@ const features = [
 ];
 
 function HomePage() {
-  const featured = projects.slice(0, 3);
+  const { data: allProjects = [], isLoading: projectsLoading } = useQuery(discoveryQuery);
+  const featured = allProjects.slice(0, 3);
 
   return (
     <div>
@@ -212,11 +214,26 @@ function HomePage() {
               </Link>
             </Button>
           </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {featured.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
+          {projectsLoading ? (
+            <p className="text-sm text-muted-foreground">Loading projects…</p>
+          ) : featured.length === 0 ? (
+            <Card className="shadow-soft">
+              <CardContent className="flex flex-col items-start gap-3 pt-6">
+                <p className="text-sm text-muted-foreground">
+                  No projects have been posted yet — be the first to share one.
+                </p>
+                <Button asChild>
+                  <Link to="/register">Create your profile</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {featured.map((project) => (
+                <DiscoveryCard key={project.id} project={project} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
