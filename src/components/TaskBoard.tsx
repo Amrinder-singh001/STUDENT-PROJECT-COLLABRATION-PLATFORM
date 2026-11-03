@@ -417,7 +417,6 @@ function TaskFormModal({
             </select>
           </div>
         </div>
-        {fields.length === 0 && null}
       </div>
     </Modal>
   );
