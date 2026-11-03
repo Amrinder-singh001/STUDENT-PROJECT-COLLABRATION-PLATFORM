@@ -189,15 +189,15 @@ export function TaskBoard({ projectId }: { projectId: string }) {
 
                         <div className="mt-3 flex items-center justify-between gap-1 border-t border-border pt-2.5">
                           <div className="flex items-center gap-1">
-                            {canMove && col > 0 && (
+                            {canMove && col > 0 && TASK_STATUSES[col - 1] && (
                               <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Move "${task.title}" to ${TASK_STATUSES[col - 1]}`}
-                                onClick={() => move(task, TASK_STATUSES[col - 1])}>
+                                onClick={() => move(task, TASK_STATUSES[col - 1]!)}>
                                 <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                               </Button>
                             )}
-                            {canMove && col < TASK_STATUSES.length - 1 && (
+                            {canMove && col < TASK_STATUSES.length - 1 && TASK_STATUSES[col + 1] && (
                               <Button variant="ghost" size="icon" className="h-7 w-7" aria-label={`Move "${task.title}" to ${TASK_STATUSES[col + 1]}`}
-                                onClick={() => move(task, TASK_STATUSES[col + 1])}>
+                                onClick={() => move(task, TASK_STATUSES[col + 1]!)}>
                                 <ChevronRight className="h-4 w-4" aria-hidden="true" />
                               </Button>
                             )}
