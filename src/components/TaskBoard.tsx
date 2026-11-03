@@ -321,11 +321,6 @@ function TaskFormModal({
     }
   };
 
-  const fields: { id: TaskField; label: string; error: string | undefined }[] = [
-    { id: "title", label: "Task title", error: errors.title },
-    { id: "deadline", label: "Deadline", error: errors.deadline },
-  ];
-
   return (
     <Modal
       open={open}

@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { TaskBoard } from "@/components/TaskBoard";
@@ -23,15 +22,11 @@ export const Route = createFileRoute("/_authenticated/projects/$projectId/tasks"
 
 function TasksPage() {
   const { projectId } = Route.useParams();
-  const qc = useQueryClient();
   const { data: project } = useQuery(discoveryProjectQuery(projectId));
   const { data: stats = null } = useQuery({
     queryKey: ["project-task-stats", projectId],
     queryFn: async () => (await getTaskStats([projectId]))[0] ?? null,
   });
-
-  // Keep the summary in sync after tasks change on the board.
-  void qc.invalidateQueries({ queryKey: ["project-task-stats", projectId] });
 
   const total = stats?._total ?? 0;
   const completed = stats?._completed ?? 0;
