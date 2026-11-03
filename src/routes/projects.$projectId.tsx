@@ -8,6 +8,7 @@ import { SkillBadge, SkillBadgeList } from "@/components/SkillBadge";
 import { BookmarkButton } from "@/components/BookmarkButton";
 import { statusStyles } from "@/components/DiscoveryCard";
 import { discoveryProjectQuery } from "@/lib/discovery";
+import { getTaskStats, progressFromStats } from "@/lib/tasks";
 import { PROJECT_STATUSES } from "@/lib/projects";
 import { initialsFrom } from "@/lib/avatar";
 import { ApplyPanel } from "@/components/ApplyPanel";
@@ -31,6 +32,10 @@ function ProjectDetailsPage() {
   const { projectId } = Route.useParams();
   const { user } = useAuth();
   const { data: project, isLoading, error } = useQuery(discoveryProjectQuery(projectId));
+  const { data: taskStats = null } = useQuery({
+    queryKey: ["project-task-stats", projectId],
+    queryFn: async () => (await getTaskStats([projectId]))[0] ?? null,
+  });
 
   const back = (
     <Link
@@ -64,6 +69,9 @@ function ProjectDetailsPage() {
   const stageIndex = PROJECT_STATUSES.indexOf(project.status as (typeof PROJECT_STATUSES)[number]);
   const spots = project.team_size - project.members;
   const isOwner = user?.id === project.owner_id;
+  const taskTotal = taskStats?._total ?? 0;
+  const taskCompleted = taskStats?._completed ?? 0;
+  const progress = progressFromStats(taskStats, project.progress);
 
   return (
     <div className="container-page py-8 lg:py-12">
@@ -115,9 +123,23 @@ function ProjectDetailsPage() {
             <h2 id="progress" className="text-xl font-bold">Project progress</h2>
             <div className="mt-4 rounded-2xl border border-border bg-card p-6 shadow-soft">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                <Progress value={project.progress} aria-label="Project progress" />
-                <span className="shrink-0 text-sm font-semibold">{project.progress}%</span>
+                <Progress value={progress} aria-label="Project progress" />
+                <span className="shrink-0 text-sm font-semibold">{progress}%</span>
               </div>
+              <dl className="mt-4 grid grid-cols-3 gap-3 text-center text-sm">
+                <div className="rounded-xl bg-secondary/60 p-3">
+                  <dt className="text-xs text-muted-foreground">Total tasks</dt>
+                  <dd className="mt-0.5 font-semibold">{taskTotal}</dd>
+                </div>
+                <div className="rounded-xl bg-secondary/60 p-3">
+                  <dt className="text-xs text-muted-foreground">Completed</dt>
+                  <dd className="mt-0.5 font-semibold text-primary">{taskCompleted}</dd>
+                </div>
+                <div className="rounded-xl bg-secondary/60 p-3">
+                  <dt className="text-xs text-muted-foreground">Pending</dt>
+                  <dd className="mt-0.5 font-semibold">{taskTotal - taskCompleted}</dd>
+                </div>
+              </dl>
               <ol className="mt-5 space-y-3">
                 {PROJECT_STATUSES.map((stage, i) => {
                   const done = i <= stageIndex;
@@ -160,6 +182,9 @@ function ProjectDetailsPage() {
               )}
               <Button asChild variant="ghost" className="w-full">
                 <Link to="/projects/$projectId/team" params={{ projectId: project.id }}>View team</Link>
+              </Button>
+              <Button asChild variant="ghost" className="w-full">
+                <Link to="/projects/$projectId/tasks" params={{ projectId: project.id }}>Task board</Link>
               </Button>
               <BookmarkButton projectId={project.id} withLabel className="w-full" />
             </CardContent>

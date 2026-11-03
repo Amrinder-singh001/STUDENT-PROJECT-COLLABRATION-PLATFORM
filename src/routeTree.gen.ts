@@ -21,6 +21,7 @@ import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projec
 import { Route as AuthenticatedProjectsNewRouteImport } from './routes/_authenticated/projects.new'
 import { Route as AuthenticatedProjectsProjectIdApplicationsRouteImport } from './routes/_authenticated/projects.$projectId.applications'
 import { Route as AuthenticatedProjectsProjectIdEditRouteImport } from './routes/_authenticated/projects.$projectId.edit'
+import { Route as AuthenticatedProjectsProjectIdTasksRouteImport } from './routes/_authenticated/projects.$projectId.tasks'
 import { Route as AuthenticatedProjectsProjectIdTeamRouteImport } from './routes/_authenticated/projects.$projectId.team'
 
 const IndexRoute = IndexRouteImport.update({
@@ -85,6 +86,12 @@ const AuthenticatedProjectsProjectIdEditRoute =
     path: '/projects/$projectId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProjectsProjectIdTasksRoute =
+  AuthenticatedProjectsProjectIdTasksRouteImport.update({
+    id: '/projects/$projectId/tasks',
+    path: '/projects/$projectId/tasks',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProjectsProjectIdTeamRoute =
   AuthenticatedProjectsProjectIdTeamRouteImport.update({
     id: '/projects/$projectId/team',
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/projects/new': typeof AuthenticatedProjectsNewRoute
   '/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/projects/$projectId/tasks': typeof AuthenticatedProjectsProjectIdTasksRoute
   '/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRoutesByTo {
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/projects/new': typeof AuthenticatedProjectsNewRoute
   '/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/projects/$projectId/tasks': typeof AuthenticatedProjectsProjectIdTasksRoute
   '/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRoutesById {
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/_authenticated/projects/new': typeof AuthenticatedProjectsNewRoute
   '/_authenticated/projects/$projectId/applications': typeof AuthenticatedProjectsProjectIdApplicationsRoute
   '/_authenticated/projects/$projectId/edit': typeof AuthenticatedProjectsProjectIdEditRoute
+  '/_authenticated/projects/$projectId/tasks': typeof AuthenticatedProjectsProjectIdTasksRoute
   '/_authenticated/projects/$projectId/team': typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/projects/new'
     | '/projects/$projectId/applications'
     | '/projects/$projectId/edit'
+    | '/projects/$projectId/tasks'
     | '/projects/$projectId/team'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/projects/new'
     | '/projects/$projectId/applications'
     | '/projects/$projectId/edit'
+    | '/projects/$projectId/tasks'
     | '/projects/$projectId/team'
   id:
     | '__root__'
@@ -179,6 +191,7 @@ export interface FileRouteTypes {
     | '/_authenticated/projects/new'
     | '/_authenticated/projects/$projectId/applications'
     | '/_authenticated/projects/$projectId/edit'
+    | '/_authenticated/projects/$projectId/tasks'
     | '/_authenticated/projects/$projectId/team'
   fileRoutesById: FileRoutesById
 }
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectsProjectIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/projects/$projectId/tasks': {
+      id: '/_authenticated/projects/$projectId/tasks'
+      path: '/projects/$projectId/tasks'
+      fullPath: '/projects/$projectId/tasks'
+      preLoaderRoute: typeof AuthenticatedProjectsProjectIdTasksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/projects/$projectId/team': {
       id: '/_authenticated/projects/$projectId/team'
       path: '/projects/$projectId/team'
@@ -294,6 +314,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProjectsNewRoute: typeof AuthenticatedProjectsNewRoute
   AuthenticatedProjectsProjectIdApplicationsRoute: typeof AuthenticatedProjectsProjectIdApplicationsRoute
   AuthenticatedProjectsProjectIdEditRoute: typeof AuthenticatedProjectsProjectIdEditRoute
+  AuthenticatedProjectsProjectIdTasksRoute: typeof AuthenticatedProjectsProjectIdTasksRoute
   AuthenticatedProjectsProjectIdTeamRoute: typeof AuthenticatedProjectsProjectIdTeamRoute
 }
 
@@ -305,6 +326,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedProjectsProjectIdApplicationsRoute,
   AuthenticatedProjectsProjectIdEditRoute:
     AuthenticatedProjectsProjectIdEditRoute,
+  AuthenticatedProjectsProjectIdTasksRoute:
+    AuthenticatedProjectsProjectIdTasksRoute,
   AuthenticatedProjectsProjectIdTeamRoute:
     AuthenticatedProjectsProjectIdTeamRoute,
 }
