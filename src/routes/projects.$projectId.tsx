@@ -8,6 +8,7 @@ import { SkillBadge, SkillBadgeList } from "@/components/SkillBadge";
 import { BookmarkButton } from "@/components/BookmarkButton";
 import { statusStyles } from "@/components/DiscoveryCard";
 import { discoveryProjectQuery } from "@/lib/discovery";
+import { getTaskStats, progressFromStats } from "@/lib/tasks";
 import { PROJECT_STATUSES } from "@/lib/projects";
 import { initialsFrom } from "@/lib/avatar";
 import { ApplyPanel } from "@/components/ApplyPanel";

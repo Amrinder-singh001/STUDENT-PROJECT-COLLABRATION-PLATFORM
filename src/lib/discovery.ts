@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { progressFromStats, type TaskStats } from "@/lib/tasks";
 
 export type DiscoveryOwner = { id: string; full_name: string; college: string | null; course: string | null };
 
