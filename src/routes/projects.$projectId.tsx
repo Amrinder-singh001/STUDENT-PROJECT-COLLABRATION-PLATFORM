@@ -32,6 +32,10 @@ function ProjectDetailsPage() {
   const { projectId } = Route.useParams();
   const { user } = useAuth();
   const { data: project, isLoading, error } = useQuery(discoveryProjectQuery(projectId));
+  const { data: taskStats = null } = useQuery({
+    queryKey: ["project-task-stats", projectId],
+    queryFn: async () => (await getTaskStats([projectId]))[0] ?? null,
+  });
 
   const back = (
     <Link

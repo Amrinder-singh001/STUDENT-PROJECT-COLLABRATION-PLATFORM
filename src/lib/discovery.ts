@@ -41,13 +41,15 @@ async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
     const { data } = await supabase.rpc("get_project_owners", { _ids: ids });
     owners = (data ?? []) as DiscoveryOwner[];
   }
+  const { data: stats } = await supabase.rpc("get_project_task_stats", { _ids: [...new Set(rows.map((r) => r.id))] });
+  const statMap = new Map<string, TaskStats>(((stats ?? []) as TaskStats[]).map((s) => [s._project_id, s]));
   return rows.map(({ project_skills, project_members, ...r }) => ({
     ...r,
     skills: (project_skills ?? []).map((ps) => ps.skills?.name).filter((n): n is string => !!n),
     owner: owners.find((o) => o.id === r.owner_id) ?? null,
     // The owner always counts as a member.
     members: 1 + (project_members?.[0]?.count ?? 0),
-    progress: PROGRESS[r.status] ?? 0,
+    progress: progressFromStats(statMap.get(r.id), PROGRESS[r.status] ?? 0),
   }));
 }
 
