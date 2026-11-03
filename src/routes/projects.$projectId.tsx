@@ -183,6 +183,9 @@ function ProjectDetailsPage() {
               <Button asChild variant="ghost" className="w-full">
                 <Link to="/projects/$projectId/team" params={{ projectId: project.id }}>View team</Link>
               </Button>
+              <Button asChild variant="ghost" className="w-full">
+                <Link to="/projects/$projectId/tasks" params={{ projectId: project.id }}>Task board</Link>
+              </Button>
               <BookmarkButton projectId={project.id} withLabel className="w-full" />
             </CardContent>
           </Card>
