@@ -155,8 +155,7 @@ function DashboardPage() {
     saved: 0,
   };
 
-  const stats = [
-    { icon: FolderKanban, label: "Projects created", value: statValues.created, delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
+  const statCards = [ delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
     { icon: Users2, label: "Projects joined", value: statValues.joined, delta: statValues.joined ? "as a team member" : "join a team to see it here" },
     { icon: Send, label: "Pending applications", value: statValues.pending, delta: statValues.pending ? "awaiting a response" : "nothing waiting" },
     { icon: CheckCircle2, label: "Accepted applications", value: statValues.accepted, delta: statValues.accepted ? "you're on those teams" : "no acceptances yet" },
