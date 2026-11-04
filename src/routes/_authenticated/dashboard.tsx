@@ -1,9 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Bell, TrendingUp, Users2, FolderKanban, Send, Github, Globe, GraduationCap, Code2, Braces, Terminal, Trophy } from "lucide-react";
+import {
+  Plus,
+  Bell,
+  TrendingUp,
+  Users2,
+  FolderKanban,
+  Send,
+  CheckCircle2,
+  Bookmark,
+  Sparkles,
+  Github,
+  Globe,
+  GraduationCap,
+  Code2,
+  Braces,
+  Terminal,
+  Trophy,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { appStatusStyles, formatDate, listMyApplications } from "@/lib/applications";
+import {
+  activityDotStyles,
+  getDashboardStats,
+  listMyTeams,
+  listRecentActivity,
+  listRecommendedProjects,
+  timeAgo,
+} from "@/lib/dashboard";
+import { statusStyles } from "@/components/DiscoveryCard";
 import { useAuth } from "@/hooks/useAuth";
 import { getAvatarUrl, initialsFrom } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,11 +39,6 @@ import { ProfilePhotoViewer } from "@/components/ProfilePhotoViewer";
 import { MyProjectCard } from "@/components/MyProjectCard";
 import { deleteProject, listMyProjects, type ProjectRow } from "@/lib/projects";
 import { SkillBadgeList } from "@/components/SkillBadge";
-import {
-  dashboardActivity,
-  projects,
-  suggestedTeammates,
-} from "@/data/mock";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -26,12 +47,12 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       {
         name: "description",
         content:
-          "Track your projects, applications, teammate matches and milestones from one student dashboard.",
+          "Track your projects, teams, applications, skill matches and milestones from one student dashboard.",
       },
       { property: "og:title", content: "Dashboard — ProjectConnect" },
       {
         property: "og:description",
-        content: "Your projects, applications and teammate matches in one place.",
+        content: "Your projects, teams, applications and skill matches in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -93,24 +114,55 @@ function DashboardPage() {
     return { pct: Math.round((done / checks.length) * 100), missing: checks.length - done };
   }, [profile, skills.length]);
 
+  const mySkillNames = useMemo(() => skills.map((s) => s.name), [skills]);
+
   const { data: myApps = [] } = useQuery({
     queryKey: ["my-applications", user?.id],
     queryFn: () => listMyApplications(user!.id),
     enabled: !!user,
   });
 
-  const stats = [
-    { icon: FolderKanban, label: "My projects", value: String(myProjects?.length ?? 0), delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
-    { icon: Send, label: "Applications sent", value: String(myApps.length), delta: `${myApps.filter((a) => a.status === "Pending").length} pending` },
-    { icon: Users2, label: "Skills listed", value: String(skills.length), delta: skills.length ? "shown on your profile" : "add your first skill" },
-    {
-      icon: TrendingUp,
-      label: "Profile strength",
-      value: `${strength.pct}%`,
-      delta: strength.missing ? `${strength.missing} item${strength.missing > 1 ? "s" : ""} to complete` : "profile complete",
-    },
-  ];
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats", user?.id],
+    queryFn: () => getDashboardStats(user!.id),
+    enabled: !!user,
+  });
 
+  const { data: myTeams = [], isLoading: teamsLoading } = useQuery({
+    queryKey: ["dashboard-teams", user?.id],
+    queryFn: () => listMyTeams(user!.id),
+    enabled: !!user,
+  });
+
+  const { data: activity = [], isLoading: activityLoading } = useQuery({
+    queryKey: ["dashboard-activity", user?.id],
+    queryFn: () => listRecentActivity(user!.id),
+    enabled: !!user,
+  });
+
+  const { data: recommendations = [], isLoading: recsLoading } = useQuery({
+    queryKey: ["dashboard-recommendations", user?.id, mySkillNames.join(",")],
+    queryFn: () => listRecommendedProjects(user!.id, mySkillNames),
+    enabled: !!user && mySkillNames.length > 0,
+  });
+
+  const statValues = stats ?? {
+    created: 0,
+    joined: 0,
+    pending: 0,
+    accepted: 0,
+    completed: 0,
+    saved: 0,
+  };
+
+  const stats = [
+    { icon: FolderKanban, label: "Projects created", value: statValues.created, delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
+    { icon: Users2, label: "Projects joined", value: statValues.joined, delta: statValues.joined ? "as a team member" : "join a team to see it here" },
+    { icon: Send, label: "Pending applications", value: statValues.pending, delta: statValues.pending ? "awaiting a response" : "nothing waiting" },
+    { icon: CheckCircle2, label: "Accepted applications", value: statValues.accepted, delta: statValues.accepted ? "you're on those teams" : "no acceptances yet" },
+    { icon: TrendingUp, label: "Completed projects", value: statValues.completed, delta: statValues.completed ? "as project owner" : "keep building" },
+    { icon: Bookmark, label: "Saved projects", value: statValues.saved, delta: statValues.saved ? "in your bookmarks" : "bookmark projects on Explore" },
+  ];
 
   return (
     <div className="container-page py-10">
@@ -160,7 +212,7 @@ function DashboardPage() {
                 {profile?.bio || "Add a short bio so teammates know what you're about."}
               </p>
               {skills.length > 0 ? (
-                <SkillBadgeList skills={skills.map((s) => s.name)} max={10} variant="primary" />
+                <SkillBadgeList skills={mySkillNames} max={10} variant="primary" />
               ) : (
                 <p className="text-sm text-muted-foreground">No skills yet — add some on your profile.</p>
               )}
@@ -187,14 +239,16 @@ function DashboardPage() {
         </Card>
       </section>
 
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((s) => (
           <li key={s.label}>
             <Card className="shadow-soft">
               <CardContent className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-6">
                 <div className="min-w-0">
                   <p className="truncate text-sm text-muted-foreground">{s.label}</p>
-                  <p className="mt-1 font-display text-2xl font-bold">{s.value}</p>
+                  <p className="mt-1 font-display text-2xl font-bold">
+                    {statsLoading ? "…" : s.value}
+                  </p>
                   <p className="mt-1 truncate text-xs text-muted-foreground">{s.delta}</p>
                 </div>
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -207,11 +261,12 @@ function DashboardPage() {
       </ul>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="min-w-0" aria-label="Your projects">
+        <section className="min-w-0" aria-label="Your projects and teams">
           <Tabs defaultValue="my-projects">
             <TabsList>
               <TabsTrigger value="my-projects">My projects</TabsTrigger>
               <TabsTrigger value="applications">Applications</TabsTrigger>
+              <TabsTrigger value="teams">My teams</TabsTrigger>
             </TabsList>
 
             <TabsContent value="my-projects" className="mt-6 space-y-6">
@@ -284,57 +339,146 @@ function DashboardPage() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="teams" className="mt-6">
+              {teamsLoading ? (
+                <p className="text-sm text-muted-foreground">Loading your teams…</p>
+              ) : myTeams.length === 0 ? (
+                <Card className="shadow-soft">
+                  <CardContent className="flex flex-col items-start gap-3 pt-6">
+                    <p className="text-sm text-muted-foreground">
+                      You're not on a team yet. Apply to a project that matches your skills.
+                    </p>
+                    <Button asChild variant="outline">
+                      <Link to="/projects">Explore projects</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {myTeams.map((team) => (
+                    <Card key={team.projectId} className="shadow-soft">
+                      <CardContent className="space-y-3 pt-6">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                          <div className="min-w-0">
+                            <Link
+                              to="/projects/$projectId"
+                              params={{ projectId: team.projectId }}
+                              className="block truncate font-semibold hover:text-primary"
+                            >
+                              {team.title}
+                            </Link>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {[team.category, `Joined ${formatDate(team.joinedAt)}`].filter(Boolean).join(" · ")}
+                            </p>
+                          </div>
+                          {team.status && (
+                            <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[team.status] ?? ""}`}>
+                              {team.status}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <SkillBadgeList skills={[`Your role: ${team.role}`]} variant="accent" />
+                          <SkillBadgeList skills={team.members.map((m) => (m.is_owner ? `${m.full_name ?? "Owner"} (owner)` : m.full_name ?? "Member")).slice(0, 4)} variant="outline" />
+                          {team.members.length > 4 && (
+                            <span className="text-xs text-muted-foreground">+{team.members.length - 4} more</span>
+                          )}
+                        </div>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                          <Link to="/projects/$projectId/team" params={{ projectId: team.projectId }}>View team</Link>
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </section>
 
         <aside className="min-w-0 space-y-6">
           <Card className="shadow-soft">
             <CardHeader className="flex-row items-center gap-2">
-              <Bell className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-              <h2 className="text-base font-semibold">Recent activity</h2>
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <h2 className="text-base font-semibold">Recommended for you</h2>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-4">
-                {dashboardActivity.map((a) => (
-                  <li key={a.text} className="flex gap-3">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                    <span className="min-w-0">
-                      <span className="block text-sm">{a.text}</span>
-                      <span className="block text-xs text-muted-foreground">{a.time}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {recsLoading ? (
+                <p className="text-sm text-muted-foreground">Finding projects that match your skills…</p>
+              ) : mySkillNames.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Add skills on your{" "}
+                  <Link to="/profile" className="font-medium text-primary hover:underline">profile</Link>{" "}
+                  to see project matches.
+                </p>
+              ) : recommendations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No skill matches right now —{" "}
+                  <Link to="/projects" className="font-medium text-primary hover:underline">browse all projects</Link>.
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {recommendations.map((r) => (
+                    <li key={r.id} className="space-y-1.5">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
+                        <Link
+                          to="/projects/$projectId"
+                          params={{ projectId: r.id }}
+                          className="min-w-0 truncate text-sm font-medium hover:text-primary"
+                        >
+                          {r.title}
+                        </Link>
+                        <span className="shrink-0 text-xs font-semibold text-primary">{r.match.pct}% match</span>
+                      </div>
+                      <div
+                        className="h-1.5 w-full overflow-hidden rounded-full bg-secondary"
+                        role="progressbar"
+                        aria-label={`${r.match.pct}% skill match for ${r.title}`}
+                        aria-valuenow={r.match.pct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <div className="h-full rounded-full bg-primary" style={{ width: `${r.match.pct}%` }} />
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {r.match.matched}/{r.match.total} skills · {r.category}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button asChild variant="outline" className="mt-5 w-full">
+                <Link to="/projects">See all projects</Link>
+              </Button>
             </CardContent>
           </Card>
 
           <Card className="shadow-soft">
-            <CardHeader>
-              <h2 className="text-base font-semibold">Suggested teammates</h2>
+            <CardHeader className="flex-row items-center gap-2">
+              <Bell className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <h2 className="text-base font-semibold">Recent activity</h2>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-4">
-                {suggestedTeammates.map((t) => (
-                  <li key={t.name} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary text-xs font-semibold">
-                      {t.initials}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">{t.name}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{t.role}</span>
-                      <SkillBadgeList className="mt-1.5" skills={t.skills} variant="outline" />
-                    </span>
-                    <span className="shrink-0 text-xs font-semibold text-primary">{t.match}%</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant="outline"
-                className="mt-5 w-full"
-                onClick={() => toast.info("Teammate matching arrives in the next phase.")}
-              >
-                See all matches
-              </Button>
+              {activityLoading ? (
+                <p className="text-sm text-muted-foreground">Loading your activity…</p>
+              ) : activity.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Nothing yet — apply to a project or create one and your activity will show up here.
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {activity.map((a) => (
+                    <li key={a.id} className="flex gap-3">
+                      <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${activityDotStyles[a.kind]}`} />
+                      <span className="min-w-0">
+                        <span className="block text-sm">{a.text}</span>
+                        <span className="block text-xs text-muted-foreground">{timeAgo(a.at)}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
         </aside>

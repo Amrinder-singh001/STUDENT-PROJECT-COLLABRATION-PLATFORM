@@ -29,12 +29,12 @@ const PROGRESS: Record<string, number> = {
   Completed: 100,
 };
 
-type Raw = Omit<DiscoveryProject, "skills" | "owner" | "members" | "progress"> & {
+export type Raw = Omit<DiscoveryProject, "skills" | "owner" | "members" | "progress"> & {
   project_skills: { skills: { name: string } | null }[] | null;
   project_members: { count: number }[] | null;
 };
 
-async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
+export async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
   const ids = [...new Set(rows.map((r) => r.owner_id))];
   let owners: DiscoveryOwner[] = [];
   if (ids.length) {
@@ -53,13 +53,13 @@ async function withOwners(rows: Raw[]): Promise<DiscoveryProject[]> {
   }));
 }
 
-const SELECT =
+export const DISCOVERY_SELECT =
   "id, owner_id, title, description, category, team_size, difficulty, duration, status, additional_info, created_at, project_skills(skills(name)), project_members(count)";
 
 export const discoveryQuery = queryOptions({
   queryKey: ["discovery-projects"],
   queryFn: async () => {
-    const { data, error } = await supabase.from("projects").select(SELECT).order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("projects").select(DISCOVERY_SELECT).order("created_at", { ascending: false });
     if (error) throw error;
     return withOwners((data ?? []) as unknown as Raw[]);
   },
@@ -69,7 +69,7 @@ export const discoveryProjectQuery = (id: string) =>
   queryOptions({
     queryKey: ["discovery-project", id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("projects").select(SELECT).eq("id", id).maybeSingle();
+      const { data, error } = await supabase.from("projects").select(DISCOVERY_SELECT).eq("id", id).maybeSingle();
       if (error) throw error;
       if (!data) return null;
       return (await withOwners([data as unknown as Raw]))[0] ?? null;
