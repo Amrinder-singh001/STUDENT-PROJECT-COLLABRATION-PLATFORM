@@ -36,6 +36,20 @@
       "when": 1793589090373,
       "tag": "0004_project_tasks_and_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793880663176,
+      "tag": "0005_add_project_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793880716876,
+      "tag": "0006_fix_task_notification_insert",
+      "breakpoints": true
     }
   ]
 }

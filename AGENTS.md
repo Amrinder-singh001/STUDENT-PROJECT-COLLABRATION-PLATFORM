@@ -11,3 +11,4 @@
 
 - Profile photo selection opens the client-side AvatarEditor using react-easy-crop and exports the confirmed square crop before the existing storage upload; this preserves the current profile design and prevents unconfirmed photo changes.
 - Dashboard and Profile use the shared ProfilePhotoViewer with the existing Modal primitive; this keeps photo viewing accessible and separate from the camera editing action.
+- Persisted notifications are created by database triggers for domain events and are readable or markable only by their recipient, keeping event capture reliable and user-scoped.
