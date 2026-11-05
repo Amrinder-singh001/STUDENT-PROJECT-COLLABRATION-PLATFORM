@@ -155,7 +155,8 @@ function DashboardPage() {
     saved: 0,
   };
 
-  const statCards = [ delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
+  const statCards = [
+    { icon: FolderKanban, label: "Projects created", value: statValues.created, delta: `${myProjects?.filter((p) => p.status === "Recruiting").length ?? 0} recruiting` },
     { icon: Users2, label: "Projects joined", value: statValues.joined, delta: statValues.joined ? "as a team member" : "join a team to see it here" },
     { icon: Send, label: "Pending applications", value: statValues.pending, delta: statValues.pending ? "awaiting a response" : "nothing waiting" },
     { icon: CheckCircle2, label: "Accepted applications", value: statValues.accepted, delta: statValues.accepted ? "you're on those teams" : "no acceptances yet" },
@@ -239,7 +240,7 @@ function DashboardPage() {
       </section>
 
       <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {stats.map((s) => (
+        {statCards.map((s) => (
           <li key={s.label}>
             <Card className="shadow-soft">
               <CardContent className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 pt-6">
