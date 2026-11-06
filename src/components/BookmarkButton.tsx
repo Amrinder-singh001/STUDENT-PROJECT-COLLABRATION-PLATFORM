@@ -10,7 +10,10 @@ export function useBookmarks() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ["bookmarks", user?.id],
-    queryFn: () => listBookmarks(user!.id),
+    queryFn: () => {
+      if (!user) throw new Error("Sign in to view bookmarks.");
+      return listBookmarks(user.id);
+    },
     enabled: !!user,
   });
 }
@@ -22,11 +25,15 @@ export function BookmarkButton({ projectId, withLabel, className }: { projectId:
   const { data = [] } = useBookmarks();
   const saved = data.includes(projectId);
   const m = useMutation({
-    mutationFn: () => setBookmark(user!.id, projectId, !saved),
+    mutationFn: () => {
+      if (!user) throw new Error("Sign in to bookmark projects.");
+      return setBookmark(user.id, projectId, !saved);
+    },
     onSuccess: () => {
       qc.setQueryData<string[]>(["bookmarks", user?.id], (prev = []) =>
         saved ? prev.filter((id) => id !== projectId) : [...prev, projectId],
       );
+      void qc.invalidateQueries({ queryKey: ["saved-projects", user?.id] });
       toast.success(saved ? "Removed from bookmarks" : "Saved to bookmarks");
     },
     onError: () => toast.error("Could not update bookmark. Please try again."),

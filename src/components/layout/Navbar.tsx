@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/NotificationBell";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/projects", label: "Projects" },
+  { to: "/saved", label: "Saved" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/profile", label: "Profile" },
   { to: "/about", label: "About" },
@@ -51,12 +53,17 @@ export function Navbar() {
           </ul>
 
           <div className="ml-2 hidden items-center gap-2 md:flex">
+            <NotificationBell />
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">Log in</Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/register">Join free</Link>
             </Button>
+          </div>
+
+          <div className="md:hidden">
+            <NotificationBell />
           </div>
 
           <button

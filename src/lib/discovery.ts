@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { bookmarkUpsertOptions } from "@/lib/bookmark-policy";
 import { progressFromStats, type TaskStats } from "@/lib/tasks";
 
 export type DiscoveryOwner = { id: string; full_name: string; college: string | null; course: string | null };
@@ -84,9 +85,24 @@ export async function listBookmarks(userId: string): Promise<string[]> {
 
 export async function setBookmark(userId: string, projectId: string, on: boolean) {
   const { error } = on
-    ? await supabase.from("project_bookmarks").insert({ user_id: userId, project_id: projectId })
+    ? await supabase
+        .from("project_bookmarks")
+        .upsert({ user_id: userId, project_id: projectId }, bookmarkUpsertOptions())
     : await supabase.from("project_bookmarks").delete().eq("user_id", userId).eq("project_id", projectId);
   if (error) throw error;
+}
+
+export async function listSavedProjects(userId: string): Promise<DiscoveryProject[]> {
+  const projectIds = await listBookmarks(userId);
+  if (!projectIds.length) return [];
+  const { data, error } = await supabase.from("projects").select(DISCOVERY_SELECT).in("id", projectIds);
+  if (error) throw error;
+  const projects = await withOwners((data ?? []) as unknown as Raw[]);
+  const byId = new Map(projects.map((project) => [project.id, project]));
+  return projectIds.flatMap((id) => {
+    const project = byId.get(id);
+    return project ? [project] : [];
+  });
 }
 
 export function relevance(p: DiscoveryProject, q: string, skills: string[]): number {

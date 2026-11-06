@@ -50,6 +50,20 @@
       "when": 1793880716876,
       "tag": "0006_fix_task_notification_insert",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793969996811,
+      "tag": "0007_notify_project_owner_on_team_join",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793970065961,
+      "tag": "0008_guard_task_assignment_notifications",
+      "breakpoints": true
     }
   ]
 }
