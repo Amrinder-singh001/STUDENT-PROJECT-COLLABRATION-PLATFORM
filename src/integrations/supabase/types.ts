@@ -208,6 +208,47 @@ export type Database = {
           },
         ]
       }
+      project_reports: {
+        Row: {
+          created_at: string
+          details: string
+          id: string
+          project_id: string
+          reason: string
+          reporter_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string
+          id?: string
+          project_id: string
+          reason: string
+          reporter_id: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string
+          id?: string
+          project_id?: string
+          reason?: string
+          reporter_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_reports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_skills: {
         Row: {
           created_at: string
@@ -298,6 +339,7 @@ export type Database = {
           duration: string
           id: string
           image_path: string | null
+          is_hidden: boolean
           owner_id: string
           status: string
           team_size: number
@@ -313,6 +355,7 @@ export type Database = {
           duration: string
           id?: string
           image_path?: string | null
+          is_hidden?: boolean
           owner_id: string
           status?: string
           team_size: number
@@ -328,6 +371,7 @@ export type Database = {
           duration?: string
           id?: string
           image_path?: string | null
+          is_hidden?: boolean
           owner_id?: string
           status?: string
           team_size?: number

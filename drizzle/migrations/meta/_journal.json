@@ -64,6 +64,20 @@
       "when": 1793970065961,
       "tag": "0008_guard_task_assignment_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794043908404,
+      "tag": "0009_project_reports_and_admin_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794043979448,
+      "tag": "0010_restrict_project_report_submission",
+      "breakpoints": true
     }
   ]
 }
